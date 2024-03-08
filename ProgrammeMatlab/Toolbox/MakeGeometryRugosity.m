@@ -1,4 +1,4 @@
-function[Map] = MakeGeometryRugosity(grid, probe, medium, interface, simu_dir, print, print_hist)
+function[Map] = MakeGeometryRugosity(grid, probe, medium, interface, print, print_hist, simu_dir)
 	to_px = @(mm) round(mm/grid.step); 
     Nz = to_px(grid.depth);    % Number of point in the direction 1 (depth - Z)
     Nx = to_px(grid.width);    % Number of point in the direction 2 (width - X)
@@ -45,10 +45,12 @@ function[Map] = MakeGeometryRugosity(grid, probe, medium, interface, simu_dir, p
     close(h);
     toc
     
-    SimSonic2DWriteMap2D(uint8(Map),[simu_dir 'Geometry.map2D']);
+    if nargin == 7
+        SimSonic2DWriteMap2D(uint8(Map),[simu_dir 'Geometry.map2D']);
+    end
     
     % Plot map      
-    if print == true
+    if print
         X = 0:grid.step:grid.width-grid.step;
         Z = flipud(0:grid.step:grid.depth-grid.step);
         figure, imagesc(X, Z, Map)
@@ -65,7 +67,7 @@ function[Map] = MakeGeometryRugosity(grid, probe, medium, interface, simu_dir, p
     end
     
     % Plot histogram of simulated diameters
-    if print_hist == true
+    if print_hist
         figure;
         histogram(size_dist);
         xlabel('Diameter (mm)');

@@ -1,4 +1,4 @@
-function[] = MakeSgl(param, grid, medium, signal, simu_dir, print) 
+function[] = MakeSgl(param, grid, medium, signal, print, simu_dir) 
 % MakeSgl generates the excitation signal and writes it to Signal.sgl file in the simulation directory.
 %
 % Syntax:
@@ -9,8 +9,11 @@ function[] = MakeSgl(param, grid, medium, signal, simu_dir, print)
 %   - grid: Structure containing information about the grid dimensions.
 %   - medium: Structure containing information about the medium properties.
 %   - signal: Structure containing information about the excitation signal.
-%   - simu_dir: Directory where the simulation files are saved.
 %   - print: Logical value indicating whether to plot the excitation signal.
+%   - simu_dir: Directory where the simulation files are saved, 
+%           if not indicated, the signal is only computed on matlab, 
+%           not registered in the simulation directory.
+ 
 
     std_t = 1.52/(2*pi*signal.B);                           % Temporal standard deviation, exact
     periode = signal.nb_periode/signal.fc;    
@@ -24,8 +27,9 @@ function[] = MakeSgl(param, grid, medium, signal, simu_dir, print)
     % Computation of the signal
     signal_out = exp(-(t-periode/2).^2/(2*std_t.^2)).*sin(2*pi*signal.fc*t);
     
-    % Plot the signal in the time domain
-    if print == true
+    % Plot the signal in the time domain if print is true
+    % Plot the signal in the time domain if print is true
+    if print
         figure;
         plot(t, signal_out);
         xlabel('Time (us)');
@@ -33,5 +37,8 @@ function[] = MakeSgl(param, grid, medium, signal, simu_dir, print)
         title('Excitation signal in time domain');
     end
 
-    SimSonic2DWriteSgl(transpose(signal_out), [simu_dir 'Signal.sgl'])
+    % Execute the last line only if simu_dir is specified
+    if nargin ==6 
+        SimSonic2DWriteSgl(transpose(signal_out), [simu_dir 'Signal.sgl']);
+    end
 end

@@ -1,4 +1,4 @@
-function [] = GenerateAllParameters(simu_dir)
+function [param, grid, probe, medium, interface, signal] = GenerateAllParameters(simu_dir)
 % This function contain all the parameters required for the simulation. 
 % Needs to be generate in MakeFiles.m
 % 
