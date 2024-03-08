@@ -44,7 +44,7 @@ function[Map] = MakeGeometryInterface(grid, probe, medium, interface, print, sim
     
     % Plot map      
     if print
-        X = 0:grid.step:grid.width-grid.step;
+        X = 0:grid.step:grid.width-grid.step; X = X -mean(X);
         Z = flipud(0:grid.step:grid.depth-grid.step);
         figure, imagesc(X, Z, Map)
         xticks(X(1:100:Nx));

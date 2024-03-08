@@ -20,7 +20,7 @@ grid.width = 30;                 % Grid with or X-axis (mm)
 
 % PROBE PARAMETERS 
 probe.depth = 2;                 % Probe depth (mm)
-probe.fc = 2.5e6;                  % Central frequency (Hz)
+probe.fc = 2.5e6;                % Central frequency (Hz)
 probe.pitch = 0.3;               % Pitch (mm)
 probe.width = 0.25;              % Width of the element (mm)
 probe.Nelements = 96;            % Number of elements 
@@ -39,10 +39,10 @@ medium.attenuation(2) = 0;
 % INTERFACE PARAMETERS
 interface.depth = 10;                 % Interface between the bone and the soft tisse (mm)
 interface.patient = 'osteoporotic';   % Type of patient that determine the pore size distribution ('young', 'aged' or 'osteoporotic')
-interface.rms = 0.1;                  % rms height (mm)
-interface.corr = 1;                   % correlation length (mm)
-interface.porosity = 10;              % Porosity in the bone (volume of pore/volume of bone) (%)
-interface.rugosity = 50;              % Rugosity in a layer of a wavelength size at the bone interface (%)
+interface.rms = 5;                  % rms height (mm)
+interface.corr = 0.5;                   % correlation length (mm)
+interface.porosity = 50;              % Porosity in the bone (volume of pore/volume of bone) (%)
+interface.rugosity = 60;              % Rugosity in a layer of a wavelength size at the bone interface (%)
 
 % SIGNAL PARAMETERS 
 signal.fc = probe.fc;        % Central frequency (Hz)

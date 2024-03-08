@@ -12,7 +12,7 @@ function[Map] = MakeGeometryRugosity(grid, probe, medium, interface, print, prin
     % PORE GENERATION
     % The rugosity corresponds to the volume of pore in a wavelength width after 
     % bone/soft tissu interface 
-    lambda = (medium.cp(2) / (probe.fc*1e3));       % Wavelength in the bone (mm)
+    lambda = (medium.cp(2) / (probe.fc))*1e3;      % Wavelength in the bone (mm)
     bone_area = Nx*to_px(lambda);                   % In pixel 
     total_pore_area = bone_area * interface.rugosity/100; 
     pore_area = 0;
@@ -51,7 +51,7 @@ function[Map] = MakeGeometryRugosity(grid, probe, medium, interface, print, prin
     
     % Plot map      
     if print
-        X = 0:grid.step:grid.width-grid.step;
+        X = 0:grid.step:grid.width-grid.step; X = X - mean(X);
         Z = flipud(0:grid.step:grid.depth-grid.step);
         figure, imagesc(X, Z, Map)
         xticks(X(1:100:Nx));
@@ -117,7 +117,7 @@ function [rugosity] = ComputeRugosity(Map, grid, probe, medium, interface)
    % The rugosity corresponds to the volume of pore in the 200um width after 
    % bone/soft tissu interface 
    to_px = @(mm) round(mm/grid.step);
-   lambda = (medium.cp(2) / (probe.fc*1e3));       % Wavelength in the bone (mm)
+   lambda = (medium.cp(2) / (probe.fc))*1e3;       % Wavelength in the bone (mm)
    lambda = to_px(lambda);
    
    pore_area = sum(Map(to_px(interface.depth) - lambda :to_px(interface.depth), :) == 0, 'all');
