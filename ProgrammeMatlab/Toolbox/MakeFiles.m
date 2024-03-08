@@ -16,17 +16,17 @@ end
 %% ACQUISITION PARAMETERS 
 % If the path to the simulation file is saved as an argument, a
 % 'parameters.mat' file will be registred in the directory.
-GenerateAllParameters(simu_dir);
+[param, grid, probe, medium, interface, signal] = GenerateAllParameters(simu_dir);
 
 %% COMPUTATION OF THE SIGNAL AND GEOMETRY FILES
 fprintf('---------- Geometry and Signal genration ----------\n');
 print = true;            % To plot the signal and the geometry.
 print_hist = true;       % To plot the size and position distributions of the pore
 
-MakeSgl(param, grid, medium, signal, simu_dir, print)
+MakeSgl(param, grid, medium, signal, print, simu_dir)
 % MakeGeometry(grid, probe, medium, interface, simu_dir, print, print_hist)
 % Map_50 = MakeGeometryRugosity(grid, probe, medium, interface, simu_dir, print, print_hist);
-Map_I = MakeGeometryInterface(grid, probe, medium, interface, simu_dir, print);
+Map_I = MakeGeometryInterface(grid, probe, medium, interface, print, simu_dir);
 
 %% CREATION OF THE PARAMETERS FILE IN EACH TRANSMITTER DIRECTORY
 fprintf('---------- Parameters genration ----------\n');
