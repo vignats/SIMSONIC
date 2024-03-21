@@ -34,7 +34,7 @@ end
 surface = FitParabola(binary_image_init, boundary_endost_init, true);
 
 % COMPUTATION OF RMS 
-rms_0 = rms(surface(:, 2) - boundary_endost_init(:, 2));
+rms_0 = rms(surface(:, 2) - boundary_endost_init(:, 2))*9e-3;       % Rms (mm) - Pixel size = 9e-3 mm
 %% COMPUTE RMS HEIGTH FOR ALL IMAGES
 % Compute the rms for all the other images, using the parabola and endost
 % limitation defined for the first image 
@@ -69,7 +69,7 @@ while exist(filename, 'file')
     
     % Compute the rms
     [~, idx_surface, idx_boundary_endost] = intersect(surface(:, 1), boundary_endost(:, 1));
-    rms_all(end +1,:) = [num_slice, rms(surface(idx_surface, 2) - boundary_endost(idx_boundary_endost, 2))]*9e-3;       % Rms (mm) - Pixel size = 9e-3 mm
+    rms_all(end +1,:) = [num_slice, rms(surface(idx_surface, 2) - boundary_endost(idx_boundary_endost, 2))*9e-3];       % Rms (mm) - Pixel size = 9e-3 mm
 
     num_slice = num_slice + 1;
     file = ['SAMPLE_', bone{bone_nb}, '_SLICE_', int2str(num_slice), '.bmp']; 
@@ -79,3 +79,5 @@ toc
 
 %% SAVE RMS VALUE IN .mat FILE
 save(fullfile(dirname, 'rms.mat'), "rms_all");
+figure 
+plot(rms_all(:,1), rms_all(:,2));
