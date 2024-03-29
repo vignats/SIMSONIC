@@ -1,17 +1,17 @@
-function[roughness] = GetRoughness(bone_bmp, fc)
+function[profile, roughness] = GetRoughness(filename, fc, segmented)
 % This function allow to filter the low frequency data of the profile,
 % which corresponds to the waviness, in order to obtain the roughness that
 % corresponds to higher frequency. 
-% INPUT : fc - Cutt-off frequency between waviness and roughness (mm-1).
+% INPUT :   filename - path to the image.
+%           fc - Cutt-off frequency between waviness and roughness (mm-1).
+%           segmented - indicate weither the image is already segmented or
+%           not. 
 % OUTPUT : roughness - 1-D vector containing the heigth of the roughness (mm).
-    
-    % INITIAL COMPUTATION OF RMS HEIGTH
-    % THRESHOLD TO CONVERT TO BINARY IMAGE
-    threshold = graythresh(bone_bmp); % Find an automatic threshold
-    binary_image = imbinarize(bone_bmp, threshold);
+%
+% See also : ExtractBoundary
     
     % BOUNDARIES COMPUTATION
-    boundary_endost = ExtractBoundary(binary_image);
+    boundary_endost = ExtractBoundary(filename,segmented);
     boundary_endost(2, :) = max(boundary_endost(2, :)) - boundary_endost(2, :);
     
     % ROUGHNESS COMPUTATION

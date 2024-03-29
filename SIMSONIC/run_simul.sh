@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd ~/Documents/SIMSONIC/SimSonic2D_SourceCode/
+cd ~/Documents/BoneRugosity/SIMSONIC/SimSonic2D_SourceCode/
 export OMP_NUM_THREADS=16
 SECONDS=0
 for k in {1..19}

@@ -9,7 +9,7 @@ clc
 fprintf('----------------------------------------------------\n')
 fprintf('Started the processing at %s\n', tstart)
 % Directory that contains simulation data
-simul_data_dir = '~/Documents/PROGRAMMATION/SIMSONIC/Simulation/data_AS';%'/calculSSD/adia/SIMULATION/SPECULAR/FLUID';
+simul_data_dir = '~/Documents/BoneRugosity/SIMSONIC/Simulation/Bone227G-Image1591-F1.25/';%'/calculSSD/adia/SIMULATION/SPECULAR/FLUID';
 %%
 cortical_porosity = 0;%evalin('base','cortical_porosity');
 pore_size = 1;%evalin('base','pore_size');
@@ -21,7 +21,7 @@ data_dir = simul_data_dir;%sprintf('%s/PORE_SIZE_%02d',simul_data_dir,pore_size)
 path_to_rf = sprintf('%s/%s_recorded_rf_no_atten_%s_porosity_%02d_pore_size_%d.mat', ...
     data_dir,transmit_sequence, geometry,cortical_porosity, pore_size);
 
-recorded  = load(path_to_rf);
+recorded  = load(simul_data_dir);
 
 %%
 C_LENS = 1540; LENS_THICKNESS = 1e-6;
