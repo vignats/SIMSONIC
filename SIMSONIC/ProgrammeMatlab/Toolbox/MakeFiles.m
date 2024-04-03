@@ -5,19 +5,20 @@ clc;
 addpath(genpath('~/Documents')); 
 
 %% ACQUISITION PARAMETERS 
-% If the path to the simulation file is saved as an argument, a
+% If the saveParam argument is true, a
 % 'parameters.mat' file will be registred in the directory.
-[param, grid, probe, medium, interface, signal, filter, simu_dir] = GenerateAllParameters(true);
+saveParam = false;
+[param, grid, probe, medium, interface, signal, simu_dir] = GenerateAllParameters(saveParam);
 
 %% COMPUTATION OF THE SIGNAL AND GEOMETRY FILES
 fprintf('---------- Geometry and Signal genration ----------\n');
-print = true;            % To plot the signal and the geometry.
+print = false;            % To plot the signal and the geometry.
 print_hist = true;       % To plot the size and position distributions of the pore
 
+% If the path to the simulation file is saved as an argument, a
+% the signal and geometry files will be registred in the directory.
 MakeSgl(param, grid, medium, signal, print, simu_dir)
-% MakeGeometry(grid, probe, medium, interface, simu_dir, print, print_hist)
-% Map_50 = MakeGeometryRugosity(grid, probe, medium, interface, simu_dir, print, print_hist);
-Map_I = MakeGeometryInterface(grid, probe, medium, interface, print, simu_dir);
+MakeGeometryInterface(grid, probe, medium, interface, print, simu_dir);
 
 %% CREATION OF THE PARAMETERS FILE IN EACH TRANSMITTER DIRECTORY
 fprintf('---------- Parameters genration ----------\n');

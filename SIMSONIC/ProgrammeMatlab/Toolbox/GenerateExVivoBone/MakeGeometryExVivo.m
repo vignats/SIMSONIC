@@ -27,13 +27,13 @@ function[Map, heights] = MakeGeometryExVivo(grid, interface, filter, print, simu
     to_px = @(mm) round(mm/grid.step); 
 
     % INTERFACE GENERATION
-    [profile, heightInitial] = GenerateInterface(filter);
+    [profile, heightInitial, xProfile] = GenerateInterface(filter);
 
     % Extend vector to recover the initial perimeters 
-    % heightExtended = ExtendInterface(profile, heightInitial, grid);
+    heightExtended = ExtendInterface(profile, heightInitial, grid);
 
     % Make symmetry in order to obtain the desired width
-    heights = MakeSymmetry(heightInitial, grid);
+    heights = MakeSymmetry(heightExtended, grid);
 
     % MAP GENERATION
     % Bone index :1
@@ -65,25 +65,26 @@ function[Map, heights] = MakeGeometryExVivo(grid, interface, filter, print, simu
         title('Simulation map');
 
         figure
-        plot(heightInitial)
+        plot(xProfile, heightInitial)
         title('Roughness of the interface, fc = ', filter.fc);
         xlabel('Width (mm)');
         ylabel('Depth (mm)');
+        axis equal
         
     end
 end
 
-function [profile, heightInitial] = GenerateInterface(filter)
+function [profile, heightInitial, xProfile] = GenerateInterface(filter)
 % This function allows to generate a planar interface with rugosity, based
 % on an ex-vivo bone. 
-    dirname = ['~/Documents/BoneRugosity/RMS/', filter.bone, '/'];
+    dirname = ['~/Documents/BoneRugosity/RMS/ExVivoBone/', filter.bone, '/'];
     if filter.segmented
         dirname = [dirname, 'SEGMENTED_OTSU3D_K4/'];
     end
-    file = ['SAMPLE_', filter.bone, '_SLICE_', num2str(filter.image), '.bmp']; 
+    file = ['SAMPLE_', filter.bone, '_SLICE_', sprintf('%04d', filter.image), '.bmp']; 
     filename = [dirname, file];
     
-    [profile, heightInitial] = GetRoughness(filename, filter.fc, filter.segmented);
+    [profile, heightInitial, xProfile] = GetRoughness(filename, filter.fc, filter.segmented);
 end
 
 function [heightExtended] = ExtendInterface(profile, heightInitial, grid)

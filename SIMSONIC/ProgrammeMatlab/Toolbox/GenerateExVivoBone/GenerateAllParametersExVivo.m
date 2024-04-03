@@ -12,7 +12,7 @@ function [param, grid, probe, medium, interface, signal, filter, simu_dir] = Gen
     % of the endost boundary in the frequency domain
     
     filter.bone = '227G';       % Bone from ex-vivo files
-    filter.image = '1590';      % Slice selected
+    filter.image = 1590;      % Slice selected
     filter.fc = 0.06;           % Cut-off frequency, fc = 0.06 for waviness + roughness and 1.25 for roughness (mm-1)
     filter.fs = 9e-3;           % Pixel size of the X-Ray image (mm)
     filter.segmented = false;   % Indicate if the image is segmented
@@ -51,7 +51,7 @@ function [param, grid, probe, medium, interface, signal, filter, simu_dir] = Gen
     interface.depth = 10;                 % Interface between the bone and the soft tisse (mm)
     interface.patient = 'osteoporotic';   % Type of patient that determine the pore size distribution ('young', 'aged' or 'osteoporotic')
     interface.rms = 0.5;                  % rms height (mm)
-    interface.corr = 0.5;                   % correlation length (mm)
+    interface.corr = 1;                 % correlation length (mm)
     interface.porosity = 50;              % Porosity in the bone (volume of pore/volume of bone) (%)
     interface.rugosity = 60;              % Rugosity in a layer of a wavelength size at the bone interface (%)
     
@@ -62,7 +62,7 @@ function [param, grid, probe, medium, interface, signal, filter, simu_dir] = Gen
     
     % CREATION OF THE SIMULATION DIRECTORY FOR FILTRED ENDOST FROM EX-VIVO BONE
     filename = '~/Documents/BoneRugosity/SIMSONIC/Simulation/';
-    simulation_name = ['Bone', filter.bone, '-Image', filter.image, '-F', num2str(filter.fc), '/'];
+    simulation_name = ['Bone', filter.bone, '-Image', sprintf('%04d', filter.image), '-F', num2str(filter.fc), '/'];
     simu_dir = [filename, simulation_name]; 
     if ~exist(simu_dir,'dir')
 	    mkdir(simu_dir);

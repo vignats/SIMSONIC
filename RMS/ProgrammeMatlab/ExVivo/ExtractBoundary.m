@@ -28,9 +28,9 @@ function [boundaryEndost] = ExtractBoundary(filename, segmented)
 
     % Deletion of the image boundary
     [nbOccurences, Zcoordinate] = groupcounts(Z_bound);                 % Count the number of occurences to detect the image boundary
-    ImageBoundary = Zcoordinate(nbOccurences == max(nbOccurences));     % Define the Z coordinate the image boundary
+    ImageBoundary = Zcoordinate(nbOccurences == max(nbOccurences));     % Define the Z coordinate of the image boundary
     
-    Limite = (X_bound((Z_bound == ImageBoundary)));                     % Define and center the X coordinate of the image boundary
+    Limite = (X_bound(Z_bound == ImageBoundary));                     % Define and center the X coordinate of the image boundary
     LimEndoMax = min(Limite(Limite - mean(Limite) > 0));   
     LimEndoMin = max(Limite(Limite - mean(Limite) < 0));
 

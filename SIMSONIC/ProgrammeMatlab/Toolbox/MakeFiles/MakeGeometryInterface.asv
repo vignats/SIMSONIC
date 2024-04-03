@@ -52,7 +52,7 @@ function[Map] = MakeGeometryInterface(grid, probe, medium, interface, print, sim
         axis equal
         xlabel('Width (mm)');
         ylabel('Depth (mm)');
-        title(sprintf('Simulation map, rms = %f, corr = %f', interface.rms, interface.corr));
+        title(sprintf('Simulation map, rms = %f, corr = %f', interface.rms; interface.corr));
         
         % Rugosity calculation 
         format = 'The interface have a rugosity of %.1f %%\n';

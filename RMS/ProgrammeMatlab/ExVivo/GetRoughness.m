@@ -1,4 +1,4 @@
-function[profile, roughness] = GetRoughness(filename, fc, segmented)
+function[profile, roughness, xProfile] = GetRoughness(filename, fc, segmented)
 % This function allow to filter the low frequency data of the profile,
 % which corresponds to the waviness, in order to obtain the roughness that
 % corresponds to higher frequency. 
@@ -11,14 +11,15 @@ function[profile, roughness] = GetRoughness(filename, fc, segmented)
 % See also : ExtractBoundary
     
     % BOUNDARIES COMPUTATION
-    boundary_endost = ExtractBoundary(filename,segmented);
-    boundary_endost(2, :) = max(boundary_endost(2, :)) - boundary_endost(2, :);
+    boundaryEndost = ExtractBoundary(filename, segmented);
+    boundaryEndost(2, :) = max(boundaryEndost(2, :)) - boundaryEndost(2, :);
     
     % ROUGHNESS COMPUTATION
     % Parameters
     delta_x = 9e-3;             % Pixel size corresponding to the space step (mm)
     Fs = 1/delta_x;             % Sampling frequency (mm-1)
-    profile = boundary_endost(2, :) * delta_x;
-    
+    profile = boundaryEndost(2, :) * delta_x;
+    xProfile = (0:size(boundaryEndost, 2)-1)*1/Fs;
+
     roughness = highpass(profile, fc, Fs);
 end
