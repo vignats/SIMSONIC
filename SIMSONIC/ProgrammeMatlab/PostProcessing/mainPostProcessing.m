@@ -9,16 +9,16 @@ addpath(genpath('~/Documents'));
 pathname = '~/Documents/BoneRugosity/SIMSONIC/Simulation/';
 
 % Gaussian distribution of rough interface
-rms = 0.5;
-corr = 0.1;
-format = 'simulation_rms_%.1f_cl_%.1f/';
-simulation_name = sprintf(format, rms, corr);
-simu_dir = [pathname, simulation_name];
+% rms = 0.5;
+% corr = 0.1;
+% format = 'simulation_rms_%.1f_cl_%.1f/';
+% simulation_name = sprintf(format, rms, corr);
+% simu_dir = [pathname, simulation_name];
 
 % Ex-vivo rough interface
 bone = '227G';
 image = '1590';
-fc = 1.25;
+fc = 0.06;
 simulation_name = ['Bone', bone, '-Image', image, '-F', num2str(fc), '/'];
 simu_dir = [pathname, simulation_name]; 
 
