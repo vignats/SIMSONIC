@@ -40,7 +40,7 @@ function[Map, heights] = MakeGeometryInterface(grid, probe, medium, interface, p
     
     if nargin == 6
         SimSonic2DWriteMap2D(Map, [simu_dir 'Geometry.map2D']);
-        save(fullfile(simu_dir, 'heights.map'), heights);
+        save(fullfile(simu_dir, 'heights.mat'), heights);
     end
     
     % Plot map      

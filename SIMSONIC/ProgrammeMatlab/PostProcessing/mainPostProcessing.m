@@ -9,25 +9,22 @@ addpath(genpath('~/Documents'));
 pathname = '~/Documents/BoneRugosity/SIMSONIC/Simulation/';
 
 % Gaussian distribution of rough interface
-% rms = 0.5;
-% corr = 0.1;
-% format = 'simulation_rms_%.1f_cl_%.1f/';
-% simulation_name = sprintf(format, rms, corr);
-% simu_dir = [pathname, simulation_name];
+rms = 0.03;
+corr = 0.5;
+format = 'simulation_rms_%.2f_cl_%.1f/';
+simulation_name = sprintf(format, rms, corr);
+simu_dir = [pathname, simulation_name];
 
 % Ex-vivo rough interface
-bone = '227G';
-image = '1590';
-fc = 1.25;
-simulation_name = ['Bone', bone, '-Image', image, '-F', num2str(fc), '/'];
-simu_dir = [pathname, simulation_name]; 
+% bone = '227G';
+% image = '1590';
+% fc = 1.25;
+% simulation_name = ['Bone', bone, '-Image', image, '-F', num2str(fc), '/'];
+% simu_dir = [pathname, simulation_name]; 
 
 % Get parameters of the simulation 
 parameters = load(fullfile(simu_dir, 'parameters.mat'));
 recorded = LoadRfData(parameters.probe, simu_dir);
-
-% Get Map and interface of the corresponding simulation
-profile = load(fullfile(simu_dir, 'interface.mat'));
 
 %% Compute parameters required to reconstruct the image using DAS and/or specular transform
 [acquisition, reconstruction] = GenerateParamRecon(recorded);
@@ -50,4 +47,4 @@ imagesc(X, Z, Map(400:end-1, 500:2499))
 axis equal
 xlabel('Width (mm)');
 ylabel('Depth (mm)');
-title(sprintf('Simulation map, rms = %f, corr = %f', parameters.interface.rms, parameters.interface.corr));
+title('Simulation map', sprintf('rms = %.2f, corr = %.1f', parameters.interface.rms, parameters.interface.corr));
