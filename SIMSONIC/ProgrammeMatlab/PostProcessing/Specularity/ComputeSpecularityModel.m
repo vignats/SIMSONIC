@@ -1,4 +1,4 @@
-function [SPECULAR_MODEL] = ComputeSpecularityModel(SPECULAR_TRANSFORM, acquisition, TiltAngles, plot)
+function [SPECULAR_MODEL] = ComputeSpecularityModel(SPECULAR_TRANSFORM, acquisition, reconstruction, TiltAngles, plot, simu_dir)
     % MODEL OF SPECULAR TRANSFORM : simplified version
     model_version = 'exact_1';%exact_0 exact_1 simplified_0 simplified_1
     excitation_signal=hilbert(SimSonic2DReadSgl([simu_dir '/Signal.sgl']));
@@ -15,12 +15,12 @@ function [SPECULAR_MODEL] = ComputeSpecularityModel(SPECULAR_TRANSFORM, acquisit
     SPECULAR_INTERFACE = [0 0]; % coefficient d'une droite [a b] z=ax+b
     wb=waitbar(0,'Simplified specuar model...');
     for iz=1:NZ
-        waitbar(iz/NZ,wb,'Simplified specuar model ...');
-        zp = Z(iz);
+        waitbar(iz/NZ,wb,'Simplified specular model ...');
+        zp = reconstruction.Z(iz);
         for ix=1:NX
             transmit_time = reconstruction.timeFlight.Time_T(:,iz,ix);
             transmit_angle = reconstruction.angleView.Angle_R(:,iz,ix);
-            xp = X(ix);
+            xp = reconstruction.X(ix);
             if all(transmit_time)
                 SPECULAR_MODEL=function_get_pix_simplified_tissue_model(xp,zp,...
                     SPECULAR_INTERFACE,reconstruction.BEST_C_LAYER,acquisition.XS, ...
@@ -71,7 +71,7 @@ function [SPECULAR_MODEL] = ComputeSpecularityModel(SPECULAR_TRANSFORM, acquisit
         Zinit = 600;
         tlo = tiledlayout(1,2);
         % nexttile(tlo,1)
-        pcolor(Xmm,Zmm,PROBA_MAP_TISS)
+        pcolor(reconstruction.Xmm,reconstruction.Zmm,PROBA_MAP_TISS)
         xlabel('Lateral position [mm]', Interpreter='latex')
         ylabel('Depth [mm]', Interpreter='latex')
         colorbar
@@ -84,7 +84,7 @@ function [SPECULAR_MODEL] = ComputeSpecularityModel(SPECULAR_TRANSFORM, acquisit
         figure('Position',[1317 1 1244 1321] ),
     
         % nexttile(tlo,2)
-        pcolor(Xmm, Zmm, SPECULAR_TILT_MAP_TISS) 
+        pcolor(reconstruction.Xmm, reconstruction.Zmm, SPECULAR_TILT_MAP_TISS) 
         axis tight
         title('Simulation map');   
         shading flat
