@@ -9,11 +9,11 @@ addpath(genpath('~/Documents'));
 pathname = '~/Documents/BoneRugosity/SIMSONIC/Simulation/';
 
 % Gaussian distribution of rough interface
-rms = 0.5;
-corr = 0.1;
-format = 'simulation_rms_%.1f_cl_%.1f/';
-simulation_name = sprintf(format, rms, corr);
-simu_dir = [pathname, simulation_name];
+% rms = 0.5;
+% corr = 0.1;
+% format = 'simulation_rms_%.1f_cl_%.1f/';
+% simulation_name = sprintf(format, rms, corr);
+% simu_dir = [pathname, simulation_name];
 
 % Ex-vivo rough interface
 bone = '227G';
@@ -37,7 +37,7 @@ profile = load(fullfile(simu_dir, 'interface.mat'));
 
 %% Compute teh specularity map and angle
 plotMap = true;
-[SpecularModel, OrientationMap, SpecularityMap] = ComputeSpecularityModel(SpecularTransform, reconstruction, acquisition, TiltAngles, simu_dir, plotMap);
+[SpecularModel] = ComputeSpecularityModel(SpecularTransform, acquisition, reconstruction, TiltAngles, plotMap, simu_dir);
 
 %% Plot map
        
