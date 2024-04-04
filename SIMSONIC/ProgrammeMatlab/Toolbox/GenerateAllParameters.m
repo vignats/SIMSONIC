@@ -15,7 +15,7 @@ function [param, grid, probe, medium, interface, signal, simu_dir] = GenerateAll
     % GRID PARAMETERS 
     grid.step = 0.01;                % Grid step (mm)
     grid.depth = 15;                 % Grid depth or Z-axis (mm)
-    grid.width = 30;                 % Grid with or X-axis (mm)
+    grid.width = 3000;                 % Grid with or X-axis (mm)
     
     % PROBE PARAMETERS 
     probe.depth = 2;                 % Probe depth (mm)
@@ -39,7 +39,7 @@ function [param, grid, probe, medium, interface, signal, simu_dir] = GenerateAll
     interface.depth = 10;                 % Interface between the bone and the soft tisse (mm)
     interface.patient = 'osteoporotic';   % Type of patient that determine the pore size distribution ('young', 'aged' or 'osteoporotic')
     interface.corr = 0.5;                 % correlation length (mm)
-    interface.rms = 0.030;                % rms height (mm)
+    interface.rms = 0.2;                % rms height (mm)
     interface.porosity = 50;              % Porosity in the bone (volume of pore/volume of bone) (%)
     interface.rugosity = 60;              % Rugosity in a layer of a wavelength size at the bone interface (%)
     

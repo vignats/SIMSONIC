@@ -1,4 +1,4 @@
-function[Map] = MakeGeometryInterface(grid, probe, medium, interface, print, simu_dir)
+function[Map, heights] = MakeGeometryInterface(grid, probe, medium, interface, print, simu_dir)
 % MakeGeometryInterface generates a map representing the bone/soft tissue interface.
 %
 % Syntax:
@@ -32,14 +32,15 @@ function[Map] = MakeGeometryInterface(grid, probe, medium, interface, print, sim
     Map=zeros(Nz, Nx, 'uint8');
 
     % INTERFACE GENERATION
-    heigths = GenerateRoughSurface(Nx, grid.width, interface.rms, interface.corr);
+    heights = GenerateRoughSurface(Nx, grid.width, interface.rms, interface.corr);
 
     for i = 1:Nx
-        Map(1: to_px(heigths(i) + interface.depth), i) = 1;
+        Map(1: to_px(heights(i) + interface.depth), i) = 1;
     end 
     
     if nargin == 6
         SimSonic2DWriteMap2D(Map, [simu_dir 'Geometry.map2D']);
+        save(fullfile(simu_dir, 'heights.map'), heights);
     end
     
     % Plot map      
