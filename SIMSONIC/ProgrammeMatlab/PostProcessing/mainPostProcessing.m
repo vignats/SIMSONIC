@@ -2,25 +2,26 @@ clear;
 close all;
 clc;
 addpath(genpath('~/Documents')); 
+addpath(genpath('/calculSSD/salome'));
 
 %% PROCESSING OF THE RF DATA 
 % Directory of the simulation, uncomment the needed information regarding
 % the type of simulation
-pathname = '~/Documents/BoneRugosity/SIMSONIC/Simulation/';
-
 % Gaussian distribution of rough interface
-rms = 0.03;
-corr = 0.5;
-format = 'simulation_rms_%.2f_cl_%.1f/';
-simulation_name = sprintf(format, rms, corr);
-simu_dir = [pathname, simulation_name];
+% pathname = '/calculSSD/salome/Simulation-04avr/';
+% rms = 0.03;
+% corr = 0.5;
+% format = 'simulation_rms_%.2f_cl_%.1f/';
+% simulation_name = sprintf(format, rms, corr);
+% simu_dir = [pathname, simulation_name];
 
 % Ex-vivo rough interface
-% bone = '227G';
-% image = '1590';
-% fc = 1.25;
-% simulation_name = ['Bone', bone, '-Image', image, '-F', num2str(fc), '/'];
-% simu_dir = [pathname, simulation_name]; 
+pathname = '/calculSSD/salome/Simulation-28mars/';
+bone = '227G';
+image = '1590';
+fc = 1.25;
+simulation_name = ['Bone', bone, '-Image', image, '-F', num2str(fc), '/'];
+simu_dir = [pathname, simulation_name]; 
 
 % Get parameters of the simulation 
 parameters = load(fullfile(simu_dir, 'parameters.mat'));

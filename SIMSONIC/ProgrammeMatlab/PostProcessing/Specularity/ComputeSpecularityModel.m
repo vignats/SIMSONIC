@@ -1,4 +1,4 @@
-function [SPECULAR_MODEL] = ComputeSpecularityModel(SPECULAR_TRANSFORM, acquisition, reconstruction, TiltAngles, plot, simu_dir)
+function [SPECULAR_MODEL, PROBA_MAP_TISS, SPECULAR_TILT_MAP_TISS] = ComputeSpecularityModel(SPECULAR_TRANSFORM, acquisition, reconstruction, TiltAngles, plot, simu_dir)
     % MODEL OF SPECULAR TRANSFORM : simplified version
     model_version = 'exact_1';%exact_0 exact_1 simplified_0 simplified_1
     excitation_signal=hilbert(SimSonic2DReadSgl([simu_dir '/Signal.sgl']));
@@ -13,7 +13,7 @@ function [SPECULAR_MODEL] = ComputeSpecularityModel(SPECULAR_TRANSFORM, acquisit
     NZ = numel(reconstruction.Z); NX = numel(reconstruction.X);
     MODEL_MAP = zeros([length(TiltAngles) NZ NX]);
     SPECULAR_INTERFACE = [0 0]; % coefficient d'une droite [a b] z=ax+b
-    wb=waitbar(0,'Simplified specuar model...');
+    wb=waitbar(0,'Simplified specular model...');
     for iz=1:NZ
         waitbar(iz/NZ,wb,'Simplified specular model ...');
         zp = reconstruction.Z(iz);
@@ -34,38 +34,38 @@ function [SPECULAR_MODEL] = ComputeSpecularityModel(SPECULAR_TRANSFORM, acquisit
     toc
     close(wb)
 
-    if plot 
-        NTilts = length(TiltAngles);
-        SPECULAR_TRANSFORM(isnan(SPECULAR_TRANSFORM))=0;
-        MODEL_MAP(isnan(MODEL_MAP)) = 0;
-        tic
-        CORRELATION = zeros([NZ NX 2*NTilts-1]);
-        for iz =1:NZ
-            for ix = 1:NX
-                x = SPECULAR_TRANSFORM(:,iz,ix);
-                y = MODEL_MAP(:,iz,ix);
-                CORRELATION(iz,ix,:)  = xcorr(x,y,'normalized');
-            end
+
+    NTilts = length(TiltAngles);
+    SPECULAR_TRANSFORM(isnan(SPECULAR_TRANSFORM))=0;
+    MODEL_MAP(isnan(MODEL_MAP)) = 0;
+    tic
+    CORRELATION = zeros([NZ NX 2*NTilts-1]);
+    for iz =1:NZ
+        for ix = 1:NX
+            x = SPECULAR_TRANSFORM(:,iz,ix);
+            y = MODEL_MAP(:,iz,ix);
+            CORRELATION(iz,ix,:)  = xcorr(x,y,'normalized');
         end
-        toc
-        %
-        
-        thresh = .3;
-        D_THETA = (TiltAngles(2)-TiltAngles(1));
-        lags = D_THETA*(-NTilts+1:NTilts-1);
-        [PROBA_MAP_TISS, ind_T] = max(abs(CORRELATION),[],3);
-        PROBA_MAP_TISS(isnan(PROBA_MAP_TISS))=0;
-        
-        
-        SPECULAR_TILT_MAP_TISS = lags(ind_T);
-        PROBA_MAP_TISS_bin  = double((PROBA_MAP_TISS>thresh));
-        PROBA_MAP_TISS_bin(PROBA_MAP_TISS_bin==0)=nan;
-        TILT_MAP_TISS_bin = SPECULAR_TILT_MAP_TISS.*PROBA_MAP_TISS_bin;
-        SPECULAR_TILT_MAP_TISS(isnan(PROBA_MAP_TISS_bin))=nan;
-        %
-        ST = SPECULAR_TILT_MAP_TISS;
-        ST(isnan(SPECULAR_TILT_MAP_TISS)) = 0;
-        
+    end
+    toc
+    %
+    
+    thresh = .3;
+    D_THETA = (TiltAngles(2)-TiltAngles(1));
+    lags = D_THETA*(-NTilts+1:NTilts-1);
+    [PROBA_MAP_TISS, ind_T] = max(abs(CORRELATION),[],3);
+    PROBA_MAP_TISS(isnan(PROBA_MAP_TISS))=0;
+    
+    
+    SPECULAR_TILT_MAP_TISS = lags(ind_T);
+    PROBA_MAP_TISS_bin  = double((PROBA_MAP_TISS>thresh));
+    PROBA_MAP_TISS_bin(PROBA_MAP_TISS_bin==0)=nan;
+    TILT_MAP_TISS_bin = SPECULAR_TILT_MAP_TISS.*PROBA_MAP_TISS_bin;
+    SPECULAR_TILT_MAP_TISS(isnan(PROBA_MAP_TISS_bin))=nan;
+    %
+    ST = SPECULAR_TILT_MAP_TISS;
+    ST(isnan(SPECULAR_TILT_MAP_TISS)) = 0;
+    if plot 
         figure('Position', [1 1 1244 1321]),
         Xinit = 500;
         Zinit = 600;
@@ -90,7 +90,7 @@ function [SPECULAR_MODEL] = ComputeSpecularityModel(SPECULAR_TRANSFORM, acquisit
         shading flat
         xlabel('Width (mm)');
         ylabel('Depth (mm)');
-        axis image;
+        axis ij image;
         colorbar
     end
 end

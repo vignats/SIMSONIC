@@ -22,16 +22,8 @@ function [acquisition, reconstruction] = GenerateParamRecon(recorded)
     zmin = 2e-3;%
     zmax = 15e-3;%
     
-    reconstruction.BEST_C_LAYER= 3500;
-    
-    reconstruction.pixel_size = pixelSize*BEST_C_LAYER/acquisition.FREQ_Transducteur;
-    reconstruction.X = xmin:pixel_size:xmax;
-    reconstruction.Z = zmin:pixel_size:zmax;
-    reconstruction.Xmm = X*1e3; reconstruction.Zmm = Z*1e3;
-    
-    
-    
-    %
+    BEST_C_LAYER= 3500;
+
     
     acquisition.ZS = zeros(size(acquisition.XS));
     acquisition.C_LENS = C_LENS;
@@ -66,11 +58,15 @@ function [acquisition, reconstruction] = GenerateParamRecon(recorded)
         'Max_err_allowed_ReceiveAngle_rad', deg2rad(5));
     TxHalfOpeningAngInSkinDeg=atand(1/2/tx_fnumber);
     reconstruction.HalfOpeningAngInLensRad = asin(acquisition.C_LENS/reconstruction.C_TISSUE*sind(TxHalfOpeningAngInSkinDeg)); % [rad]
-    
-    
-    
-    reconstruction.X = X; reconstruction.Z = Z;
-    assert(all(isfield(reconstruction,field_recon_struc)))
+
+    reconstruction.BEST_C_LAYER = BEST_C_LAYER;
+
+    reconstruction.pixel_size = pixelSize*reconstruction.BEST_C_LAYER/acquisition.FREQ_Transducteur;
+    reconstruction.X = xmin:reconstruction.pixel_size:xmax;
+    reconstruction.Z = zmin:reconstruction.pixel_size:zmax;
+    reconstruction.Xmm = reconstruction.X*1e3; reconstruction.Zmm = reconstruction.Z*1e3;
+
+    % assert(all(isfield(reconstruction,field_recon_struc)))
     NCORE = 24;
     reconstruction.rf_data = RAW_RF_SIG;
     reconstruction.PROBE_PARAM = acquisition;
@@ -85,13 +81,14 @@ function [acquisition, reconstruction] = GenerateParamRecon(recorded)
     
     acquisition.XR = acquisition.XS;
     acquisition.ZR = acquisition.ZS;
-    
-    [Angle_T,Angle_R] = function_get_angle_of_view_sa(X,Z,acquisition.XS,acquisition.ZS,...
+
+    [Angle_T,Angle_R] = function_get_angle_of_view_sa(reconstruction.X,reconstruction.Z,acquisition.XS,acquisition.ZS,...
         acquisition.XR,acquisition.ZR);
-    [Time_T, Time_R] = function_get_time_of_flight_sa(X,Z,BEST_C_LAYER,acquisition.XS,acquisition.ZS, ...
+    [Time_T, Time_R] = function_get_time_of_flight_sa(reconstruction.X,reconstruction.Z,reconstruction.BEST_C_LAYER,acquisition.XS,acquisition.ZS, ...
         acquisition.XR,acquisition.ZR);
     
     reconstruction.timeFlight.Time_T =Time_T;
     reconstruction.timeFlight.Time_R = Time_R;
     reconstruction.angleView.Angle_T = Angle_T;
     reconstruction.angleView.Angle_R = Angle_R;
+end

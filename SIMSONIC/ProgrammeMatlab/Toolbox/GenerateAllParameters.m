@@ -15,7 +15,7 @@ function [param, grid, probe, medium, interface, signal, simu_dir] = GenerateAll
     % GRID PARAMETERS 
     grid.step = 0.01;                % Grid step (mm)
     grid.depth = 15;                 % Grid depth or Z-axis (mm)
-    grid.width = 3000;                 % Grid with or X-axis (mm)
+    grid.width = 300;                 % Grid with or X-axis (mm)
     
     % PROBE PARAMETERS 
     probe.depth = 2;                 % Probe depth (mm)
@@ -55,10 +55,10 @@ function [param, grid, probe, medium, interface, signal, simu_dir] = GenerateAll
     % of the endost boundary in the frequency domain
 
     % CREATION OF THE SIMULATION DIRECTORY
-    filename = '~/Documents/BoneRugosity/SIMSONIC/Simulation/';
+    simuDirAll = '/calculSSD/salome/Simulation-28mars';
     format = 'simulation_rms_%.2f_cl_%.1f/';
     simulation_name = sprintf(format, interface.rms, interface.corr);
-    simu_dir = [filename, simulation_name]; 
+    simu_dir = [simuDirAll, simulation_name]; 
     if ~exist(simu_dir,'dir')
         mkdir(simu_dir);
     end

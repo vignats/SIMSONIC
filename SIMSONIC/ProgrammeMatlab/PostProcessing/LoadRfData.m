@@ -12,7 +12,7 @@ function [recorded] = LoadRfData(probe, simu_dir)
 % Output Arguments:
 %   - rf : matrix of dimension time x receiver x transmitter
     for tx = 1 : probe.Nelements
-        rf_path = [simu_dir sprintf('tx_%02d/T11_main_T11.rcv2D',tx)];
+        rf_path = fullfile(simu_dir, sprintf('tx_%02d/T11_main_T11.rcv2D',tx));
         signals = SimSonic2DReadRcv2D(rf_path);
         rf(:,:,tx) = signals.Signals;
     end 
