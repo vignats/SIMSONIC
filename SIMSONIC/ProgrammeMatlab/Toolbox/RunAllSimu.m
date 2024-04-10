@@ -7,14 +7,13 @@ simuDir = dir(sprintf('%s/simulation_rms_*', pathSimu));
 dirFlags = [simuDir.isdir]; % Flag qui te dit si c'et un répertoire ou un fichier
 simuDir = simuDir(dirFlags); % Juste pour eter sur qu'on ne traite que les dossiers
 
-errorSimu = [13	14	17	18	21	22	24	25 26	28	29	32	36	40];
+errorSimu = [18	21 22 24 25 28 29 32 36 40];
 
 for idx = errorSimu
     simu_dir = fullfile(pathSimu, simuDir(idx).name);
 	terminal_string = sprintf('%s./run_simul.sh %s',pathSimsonic,simu_dir);
 	system(terminal_string)
 end
-
 
 %%
 path_to_run_simul = '~/Documents/BoneRugosity/SIMSONIC/'; % Ton dossier contenant le script de simulation

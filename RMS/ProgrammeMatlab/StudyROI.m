@@ -21,8 +21,8 @@ parametersW = load(fullfile(simuDirAll, simuNameW, 'parameters.mat'));
 %% Extract the zone of interest on the specular map probability
 plotLimite = true;
 nbWavelength = 1;
-[ROI_R, LimInfR, LimSupR] = ExtractROI(ProbaR, parametersR, reconstruction, nbWavelength, plotLimite);
-[ROI_W, LimInfW, LimSupW] = ExtractROI(ProbaW, parametersW, reconstruction, nbWavelength, plotLimite);
+[ROI_R, LimInfR, LimSupR] = ExtractROI(ProbaR, parametersR, reconstructionR, nbWavelength, plotLimite);
+[ROI_W, LimInfW, LimSupW] = ExtractROI(ProbaW, parametersW, reconstructionW, nbWavelength, plotLimite);
 
 %% Plot ROI 
 figure
@@ -51,17 +51,13 @@ linearProbaW = mean(ROI_W, 1);
 totalProbaW = mean(linearProbaW);
 
 figure;
-subplot(2,1,1)
-plot(reconstructionR.Xmm, linearProbaR);
+plot(reconstructionR.Xmm, linearProbaR, 'b');
+hold on 
+plot(reconstructionR.Xmm, linearProbaW, 'r');
 xlabel('Lateral position (mm)', Interpreter='latex')
 ylabel('Specular probability', Interpreter='latex')
-title('Specular probability along the lateral position', sprintf('Mean probability along profile %.02f', totalProbaR));
-ylim([0, 1]);
-subplot(2,1,2)
-plot(reconstructionR.Xmm, linearProbaW);
-xlabel('Lateral position (mm)', Interpreter='latex')
-ylabel('Specular probability', Interpreter='latex')
-title('Specular probability along the lateral position', sprintf('Mean probability along profile %.02f', totalProbaW));
+title('Specular probability along the lateral position', sprintf('Mean probability along roughness profile is %.02f and waviness profile is %.02f', totalProbaR, totalProbaW));
+legend('Roughness', 'Waviness')
 ylim([0, 1]);
 %%
 function[ROI, LimInf, LimSup] = ExtractROI(SpecularProbaMap, parameters, reconstruction, nbWavelength, plotLimit)
