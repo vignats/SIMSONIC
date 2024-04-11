@@ -3,7 +3,7 @@
 cd ~/Documents/BoneRugosity/SIMSONIC/SimSonic2D_SourceCode/
 export OMP_NUM_THREADS=16
 SECONDS=0
-for k in {2..19}
+for k in {19..19}
 do
         l=$(printf '%02d' $(( 5*k - 4)))
         m=$(printf '%02d' $(( 5*k - 3)))
@@ -19,6 +19,5 @@ do
         ./simsonic2D $1/"tx_"$p"/" 
         wait
 done
-#./simsonic2D $1/tx_96/
 
 eval "echo Elapsed time: $(date -ud "@$SECONDS" +'$((%s/3600/24)) days %H hr %M min %S sec')"

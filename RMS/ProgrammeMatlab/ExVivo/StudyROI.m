@@ -11,18 +11,18 @@ simuDirAll = '/calculSSD/salome/Simulation-28mars';
 simuNameW = '/Bone227G-Image1590-F0.06/';
 simuNameR = '/Bone227G-Image1590-F1.25/';
 
-[~, ProbaR, OrientationtR, reconstructionR] = PostProcessing([simuDirAll, simuNameR]);
+[~, probaMapR, OrientationtR, reconstructionR] = PostProcessing([simuDirAll, simuNameR]);
 parametersR = load(fullfile(simuDirAll, simuNameR, 'parameters.mat'));
 
-[~, ProbaW, OrientationtW, reconstructionW] = PostProcessing([simuDirAll, simuNameW]);
+[~, probaMapW, OrientationtW, reconstructionW] = PostProcessing([simuDirAll, simuNameW]);
 parametersW = load(fullfile(simuDirAll, simuNameW, 'parameters.mat'));
 
 
 %% Extract the zone of interest on the specular map probability
 plotLimite = true;
 nbWavelength = 1;
-[ROI_R, LimInfR, LimSupR] = ExtractROI(ProbaR, parametersR, reconstructionR, nbWavelength, plotLimite);
-[ROI_W, LimInfW, LimSupW] = ExtractROI(ProbaW, parametersW, reconstructionW, nbWavelength, plotLimite);
+[ROI_R, LimInfR, LimSupR] = ExtractROI(probaMapR, parametersR, reconstructionR, nbWavelength, plotLimite);
+[ROI_W, LimInfW, LimSupW] = ExtractROI(probaMapW, parametersW, reconstructionW, nbWavelength, plotLimite);
 
 %% Plot ROI 
 figure
@@ -45,10 +45,12 @@ colorbar
 
 %% COMPUTE METRICS 
 linearProbaR = mean(ROI_R, 1);
-totalProbaR = mean(linearProbaR);
+stdProbaR = std(linearProbaR);
+meanProbaR = mean(linearProbaR);
 
 linearProbaW = mean(ROI_W, 1);
-totalProbaW = mean(linearProbaW);
+stdProbaW = std(linearProbaW);
+meanProbaW = mean(linearProbaW);
 
 figure;
 plot(reconstructionR.Xmm, linearProbaR, 'b');
@@ -56,7 +58,7 @@ hold on
 plot(reconstructionR.Xmm, linearProbaW, 'r');
 xlabel('Lateral position (mm)', Interpreter='latex')
 ylabel('Specular probability', Interpreter='latex')
-title('Specular probability along the lateral position', sprintf('Mean probability along roughness profile is %.02f and waviness profile is %.02f', totalProbaR, totalProbaW));
+title('Specular probability along the lateral position', sprintf('Mean probability along roughness profile is %.02f and waviness profile is %.02f', meanProbaR, meanProbaW));
 legend('Roughness', 'Waviness')
 ylim([0, 1]);
 %%

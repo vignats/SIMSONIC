@@ -147,11 +147,6 @@ stdROI = table('Size', [numel(rmsAll), numel(corrAll)], ...
                 'VariableNames', cellstr(string(corrAll)), ...
                 'RowNames', cellstr(string(rmsAll)));
 
-corrROI = table('Size', [numel(rmsAll), numel(corrAll)], ...
-                'VariableType', repmat({'double'}, 1, numel(corrAll)), ...
-                'VariableNames', cellstr(string(corrAll)), ...
-                'RowNames', cellstr(string(rmsAll)));
-
 figure
 t = tiledlayout(numel(rmsAll),numel(corrAll),'TileSpacing','tight');
 for i = 1:numel(rmsAll)
@@ -159,7 +154,7 @@ for i = 1:numel(rmsAll)
         if ~isempty(SpecuProbaAll{i,j}{1})
             meanROI{i,j} = SpecuProbaAll{i,j}{1}.meanROI;
             stdROI{i,j} = SpecuProbaAll{i,j}{1}.stdROI;
-            % corrROI{i,j} = SpecuProbaAll{i,j}{1}.corrROI;
+
 
             nexttile(t)
             plot(reconstruction.Xmm, SpecuProbaAll{i,j}{1}.linearROI);
@@ -180,24 +175,22 @@ title(t, 'Correlation length (mm)', 'FontSize', 10)
 ylabel(t, 'Root mean square (mm)', 'FontSize', 10)
 xlabel(t, 'Specular probability along the lateral position', 'FontSize', 15, 'FontWeight', 'bold')
 
-%%
-legendPlot = {};
+legendPlot = [];
 figure
-for i = 1:numel(rmsAll)
     for j = 1:numel(corrAll)
         if ~isempty(SpecuProbaAll{i,j}{1})
             plot(reconstruction.Xmm, SpecuProbaAll{i,j}{1}.linearROI);
             ylim([0, 1]);
-            legendPlot{end+1} = ['RMS = ', SpecuProbaAll.Properties.RowNames{i}, ' CORR = ', SpecuProbaAll.Properties.VariableNames{j}];
-            
+            format = sprintf('RMS = %f CORR =')
+            legendPlot(end+1) = 
+            legend('Roughness', 'Waviness')
             hold on
-        end
     end
 end
 xlabel('Lateral position (mm)', Interpreter='latex')
 ylabel('Specular probability', Interpreter='latex')
-title('Specular probability along the lateral position');
-legend(legendPlot)
+title('Specular probability along the lateral position', sprintf('Mean probability along roughness profile is %.02f and waviness profile is %.02f', meanProbaR, meanProbaW));
+
 ylim([0, 1]);
 
  

@@ -1,4 +1,4 @@
-function[profile, roughness, xProfile] = GetRoughness(filename, fc, segmented)
+function[profile, roughness, xProfile] = FilterProfil(filename, fc, segmented)
 % This function allow to filter the low frequency data of the profile,
 % which corresponds to the waviness, in order to obtain the roughness that
 % corresponds to higher frequency. 

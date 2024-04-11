@@ -10,15 +10,23 @@ simuDir = dir(sprintf('%s/simulation_rms_*', simuDirAll));
 dirFlags = [simuDir.isdir]; 
 simuDir = simuDir(dirFlags); 
 
-% errorSimu = [];
 errorBis = [];
-for idx = errorSimu
+for idx = 1:numel(simuDir)
+    simu_dir = simuDir(idx);
+    if ~exist(fullfile(simu_dir.folder, simu_dir.name, 'postProcess.mat'))
+        errorBis(end+1) = idx;
+    end
+end
+
+%%
+errorRemain = [];
+for idx = errorBis
     try
-        simu_dir = simuDir(9);
+        simu_dir = simuDir(idx);
         [SpecularModel, SpecularProbaMap, OrientationtMap, reconstruction] = PostProcessing(fullfile(simu_dir.folder, simu_dir.name));
         save(fullfile(simu_dir.folder, simu_dir.name, 'postProcess.mat'), 'SpecularProbaMap', 'OrientationtMap', 'reconstruction');
     catch
-        errorBis(end+1) = idx;
+        errorRemain(end+1) = idx;
     end
     
 end
