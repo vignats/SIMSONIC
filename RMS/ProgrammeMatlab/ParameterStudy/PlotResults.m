@@ -9,187 +9,56 @@ addpath(genpath('/calculSSD/salome'));
 pathSimuAll = '/calculSSD/salome/Simulation-04avr';
 rmsAll = 0.03 + (0:9) * 0.05;      % List of rms values (mm)
 corrAll = [0.5 1 2 4];             % List of correlation length (mm)
-MapAll = table('Size', [numel(rmsAll), numel(corrAll)], ...
-                'VariableType', repmat({'cell'}, 1, numel(corrAll)), ...
-                'VariableNames', cellstr(string(corrAll)), ...
-                'RowNames', cellstr(string(rmsAll)));
 
-%% PLOT ALL GEOMETRY MAP
-for i = 1:numel(rmsAll)
-    rms = str2double(MapAll.Properties.RowNames{i});
-    for j = 1:numel(corrAll)
-        % Generate path to simulation directory
-        corr = str2double(MapAll.Properties.VariableNames{j});
-        format = 'simulation_rms_%.2f_cl_%.1f/';
-        simu_dir = [pathSimuAll, sprintf(format, rms, corr)];
+SpecularAll = struct();
 
-        % Recover simulation Map
-        [SpecularityMap,~,~] = SimSonic2DReadMap2D([simu_dir, 'Geometry.map2D']);
-        MapAll{i, j} = {SpecularityMap};
-    end
-end
+%% COMPUTE GEOMETRY MAP
+SpecularAll.Map = ComputeMap('Map', rmsAll, corrAll, pathSimuAll, SpecularAll);
 
-%% PLOT ALL MAPS
-figure
-t = tiledlayout(numel(rmsAll),numel(corrAll),'TileSpacing','tight');
-% Plot Map
-for i = 1:numel(rmsAll)
-    for j = 1:numel(corrAll)
-        % Generate path to simulation directory
-        nexttile(t)
-        img = MapAll{i,j}{1}(600:1200, :);
-        imagesc(img);
-%         axis equal
-        % Remove x and y axes
-        set(gca, 'xtick', [], 'ytick', []);
-        
-        if i == 1
-            title(MapAll.Properties.VariableNames{j}, 'FontSize', 8, 'FontWeight', 'normal');
-        end
-        if j == 1
-            ylabel(MapAll.Properties.RowNames{i}, 'FontSize', 8);
-        end
-    end
-end
-title(t, 'Correlation length (mm)', 'FontSize', 10)
-ylabel(t, 'Root mean square (mm)', 'FontSize', 10)
-xlabel(t, 'Interface profile for various RMS and correlation length', 'FontSize', 15, 'FontWeight', 'bold')
+%% PLOT GEOMETRY MAPS
+MapTitle = 'Interface profile for various RMS and correlation length';
+PlotAll('Map', SpecularAll, rmsAll, corrAll, pathSimuAll, MapTitle);
 
-%% PLOT ALL SPECULARITY MAPS 
-% Collect all simulations directory for the type of test.
-simuDirAll = '/calculSSD/salome/Simulation-04avr'; 
+%% COMPUTE SPECULARITY MAPS 
+SpecularAll.SpecuMap = ComputeMap('SpecuMap', rmsAll, corrAll, pathSimuAll, SpecularAll);
 
-% Create a table to stock the specularity maps
-SpecuMapAll = table('Size', [numel(rmsAll), numel(corrAll)], ...
-                'VariableType', repmat({'cell'}, 1, numel(corrAll)), ...
-                'VariableNames', cellstr(string(corrAll)), ...
-                'RowNames', cellstr(string(rmsAll)));
-%%
-for i = 1:numel(rmsAll)
-    rms = str2double(SpecuMapAll.Properties.RowNames{i});
-    for j = 1:numel(corrAll)
-        % Generate path to simulation directory
-        corr = str2double(SpecuMapAll.Properties.VariableNames{j});
-        format = 'simulation_rms_%.2f_cl_%.1f';
-        simu_dir = fullfile(pathSimuAll, sprintf(format, rms, corr));
+%% PLOT SPECULARITY MAPS
+MapTitle = 'Specular probability for various RMS and correlation length';
+PlotAll('SpecuMap', SpecularAll, rmsAll, corrAll, pathSimuAll, MapTitle);
 
-        % Recover simulation Map
-        if exist(fullfile(simu_dir, 'postProcess.mat'))
-            postProcess = load(fullfile(simu_dir, 'postProcess.mat'));
-            SpecuMapAll{i, j} = {postProcess.SpecularProbaMap};
-        end
-    end
-end
+%% COMPUTE CORRESPONDING STATISTICAL INFORMATIONS
+SpecularAll.SpecuProba = ComputeMap('SpecuProba', rmsAll, corrAll, pathSimuAll, SpecularAll);
 
 %% PLOT ALL MAPS
-figure
-t = tiledlayout(numel(rmsAll),numel(corrAll),'TileSpacing','tight');
-% Plot Map
-for i = 1:numel(rmsAll)
-    for j = 1:numel(corrAll)
-        % Generate path to simulation directory
-        nexttile(t)
-        img = SpecuMapAll{i,j}{1};
-        imagesc(img);
-%         axis equal
-        % Remove x and y axes
-        set(gca, 'xtick', [], 'ytick', []);
-        
-        if i == 1
-            title(SpecuMapAll.Properties.VariableNames{j}, 'FontSize', 8, 'FontWeight', 'normal');
-        end
-        if j == 1
-            ylabel(SpecuMapAll.Properties.RowNames{i}, 'FontSize', 8);
-        end
-    end
-end
-title(t, 'Correlation length (mm)', 'FontSize', 10)
-ylabel(t, 'Root mean square (mm)', 'FontSize', 10)
-xlabel(t, 'Specular probability for various RMS and correlation length', 'FontSize', 15, 'FontWeight', 'bold')
+MapTitle = 'Specular probability along the lateral position';
+PlotAll('SpecuProba', SpecularAll, rmsAll, corrAll, pathSimuAll, MapTitle);
 
-%% PLOT ALL THE CORRESPONDING PROBABILITIES 
-SpecuProbaAll = table('Size', [numel(rmsAll), numel(corrAll)], ...
-                'VariableType', repmat({'cell'}, 1, numel(corrAll)), ...
-                'VariableNames', cellstr(string(corrAll)), ...
-                'RowNames', cellstr(string(rmsAll)));
-
-%% COMMON PARAMETERS TO ALL SIMULATION
-simuDir = fullfile(pathSimuAll, 'simulation_rms_0.03_cl_0.5');
-parameters = load(fullfile(simuDir, 'parameters.mat'));
-recorded = LoadRfData(parameters.probe, simuDir);
-[acquisition, reconstruction] = GenerateParamRecon(recorded);
-
-%%
-for i = 1:numel(rmsAll)
-    rms = str2double(SpecuProbaAll.Properties.RowNames{i});
-    for j = 1:numel(corrAll)
-        % Generate path to simulation directory
-        corr = str2double(SpecuProbaAll.Properties.VariableNames{j});
-        format = 'simulation_rms_%.2f_cl_%.1f';
-        simu_dir = fullfile(pathSimuAll, sprintf(format, rms, corr));
-
-        % Recover simulation Map
-        if ~isempty(SpecuMapAll{i, j}{1})
-            probability = ProbaROI(SpecuMapAll{i,j}{1}, reconstruction, parameters, false);
-            SpecuProbaAll{i,j} = {probability};
-        end
-    end
-end
-
-%% PLOT ALL MAPS
-meanROI = table('Size', [numel(rmsAll), numel(corrAll)], ...
+%% TO USE IN EXCEL 
+[meanROI, stdROI, corrROI] = deal(table('Size', [numel(rmsAll), numel(corrAll)], ...
                 'VariableType', repmat({'double'}, 1, numel(corrAll)), ...
                 'VariableNames', cellstr(string(corrAll)), ...
-                'RowNames', cellstr(string(rmsAll)));
+                'RowNames', cellstr(string(rmsAll))));
 
-stdROI = table('Size', [numel(rmsAll), numel(corrAll)], ...
-                'VariableType', repmat({'double'}, 1, numel(corrAll)), ...
-                'VariableNames', cellstr(string(corrAll)), ...
-                'RowNames', cellstr(string(rmsAll)));
-
-corrROI = table('Size', [numel(rmsAll), numel(corrAll)], ...
-                'VariableType', repmat({'double'}, 1, numel(corrAll)), ...
-                'VariableNames', cellstr(string(corrAll)), ...
-                'RowNames', cellstr(string(rmsAll)));
-
-figure
-t = tiledlayout(numel(rmsAll),numel(corrAll),'TileSpacing','tight');
 for i = 1:numel(rmsAll)
     for j = 1:numel(corrAll)
-        if ~isempty(SpecuProbaAll{i,j}{1})
-            meanROI{i,j} = SpecuProbaAll{i,j}{1}.meanROI;
-            stdROI{i,j} = SpecuProbaAll{i,j}{1}.stdROI;
+        try
+            meanROI{i,j} = SpecularAll.SpecuProba{i,j}{1}.meanROI;
+            stdROI{i,j} = SpecularAll.SpecuProba{i,j}{1}.stdROI;
             % corrROI{i,j} = SpecuProbaAll{i,j}{1}.corrROI;
-
-            nexttile(t)
-            plot(reconstruction.Xmm, SpecuProbaAll{i,j}{1}.linearROI);
-            ylim([0, 1]);
-            if i == 1
-                title(SpecuMapAll.Properties.VariableNames{j}, 'FontSize', 8, 'FontWeight', 'normal');
-            end
-            if j == 1
-                ylabel(SpecuMapAll.Properties.RowNames{i}, 'FontSize', 8);
-            end
-        else
-            nexttile(t)
         end
-
     end
 end
-title(t, 'Correlation length (mm)', 'FontSize', 10)
-ylabel(t, 'Root mean square (mm)', 'FontSize', 10)
-xlabel(t, 'Specular probability along the lateral position', 'FontSize', 15, 'FontWeight', 'bold')
 
-%%
+%% TO SUBPLOT
 legendPlot = {};
 figure
 for i = 1:numel(rmsAll)
     for j = 1:numel(corrAll)
-        if ~isempty(SpecuProbaAll{i,j}{1})
+        if ~isempty(SpecularAll.SpecuProba{i,j}{1})
             plot(reconstruction.Xmm, SpecuProbaAll{i,j}{1}.linearROI);
             ylim([0, 1]);
             legendPlot{end+1} = ['RMS = ', SpecuProbaAll.Properties.RowNames{i}, ' CORR = ', SpecuProbaAll.Properties.VariableNames{j}];
-            
+
             hold on
         end
     end
@@ -199,5 +68,97 @@ ylabel('Specular probability', Interpreter='latex')
 title('Specular probability along the lateral position');
 legend(legendPlot)
 ylim([0, 1]);
+
+function[Table] = ComputeMap(MapType, rmsAll, corrAll, pathSimuAll, SpecularAll)
+    % Compute parameters once 
+    format = 'simulation_rms_%.2f_cl_%.1f/';
+    simuDir1 = fullfile(pathSimuAll, sprintf(format, rmsAll(1), corrAll(1)));
+    parameters = load(fullfile(simuDir1, 'parameters.mat'));
+    recorded = LoadRfData(parameters.probe, simuDir1);
+    [~, reconstruction] = GenerateParamRecon(recorded);
+
+    Table = table('Size', [numel(rmsAll), numel(corrAll)], ...
+                'VariableType', repmat({'cell'}, 1, numel(corrAll)), ...
+                'VariableNames', cellstr(string(corrAll)), ...
+                'RowNames', cellstr(string(rmsAll)));
+
+    % Generate Map and probability regarding the case 
+    for i = 1:numel(rmsAll)
+        rms = str2double(Table.Properties.RowNames{i});
+        for j = 1:numel(corrAll)
+            corr = str2double(Table.Properties.VariableNames{j});
+            simu_dir = fullfile(pathSimuAll, sprintf(format, rms, corr));
+    
+            % Compute the required type of simulation 
+            switch MapType
+                case 'Map'
+                    [Map,~,~] = SimSonic2DReadMap2D([simu_dir, 'Geometry.map2D']);
+                    Table{i,j}{1} = Map;
+                   
+                case 'SpecuMap'
+                    if exist(fullfile(simu_dir, 'postProcess.mat'))
+                        postProcess = load(fullfile(simu_dir, 'postProcess.mat'));
+                        Table{i,j}{1} = postProcess.SpecularProbaMap;
+                    end
+                case 'SpecuProba'
+                    try
+                        probability = ProbaROI(SpecularAll.SpecuMap{i,j}{1}, reconstruction, parameters, false);
+                        Table{i,j}{1} = probability;
+                        disp(i)
+                    end
+                otherwise 
+                    warning('Unexpected Map type. No data computed.')
+            end
+        end
+    end
+end
+
+function[] = PlotAll(MapType, Struct, rmsAll, corrAll, pathSimuAll, MapTitle)
+    Table = getfield(Struct, MapType);
+
+    % Compute parameters once 
+    format = 'simulation_rms_%.2f_cl_%.1f/';
+    simuDir1 = fullfile(pathSimuAll, sprintf(format, rmsAll(1), corrAll(1)));
+    parameters = load(fullfile(simuDir1, 'parameters.mat'));
+    recorded = LoadRfData(parameters.probe, simuDir1);
+    [~, reconstruction] = GenerateParamRecon(recorded);
+
+    figure
+    t = tiledlayout(numel(rmsAll),numel(corrAll),'TileSpacing','tight');
+    % Plot Map
+    for i = 1:numel(rmsAll)
+        for j = 1:numel(corrAll)
+            % Plot each map
+            nexttile(t)
+            switch MapType
+                case {'Map', 'SpecuMap'}
+                    try
+                        img = Table{i,j}{1};
+                        imagesc(img);
+                    end
+                case 'SpecuProba'
+                    try
+                        plot(reconstruction.Xmm, Table{i,j}{1}.linearROI);
+                        ylim([0, 1]);
+                    end
+                otherwise
+                     warning('Unexpected Map type. No data ploted.')
+            end
+            % Remove x and y axes
+            set(gca, 'xtick', [], 'ytick', []);
+            
+            % Set axis
+            if i == 1
+                title(Table.Properties.VariableNames{j}, 'FontSize', 8, 'FontWeight', 'normal');
+            end
+            if j == 1
+                ylabel(Table.Properties.RowNames{i}, 'FontSize', 8);
+            end
+        end
+    end
+    title(t, 'Correlation length (mm)', 'FontSize', 10)
+    ylabel(t, 'Root mean square (mm)', 'FontSize', 10)
+    xlabel(t, MapTitle, 'FontSize', 15, 'FontWeight', 'bold')
+end 
 
  
