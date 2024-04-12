@@ -50,14 +50,20 @@ for i = 1:numel(rmsAll)
 end
 
 %% TO SUBPLOT
+format = 'simulation_rms_%.2f_cl_%.1f/';
+simuDir1 = fullfile(pathSimuAll, sprintf(format, rmsAll(1), corrAll(1)));
+parameters = load(fullfile(simuDir1, 'parameters.mat'));
+recorded = LoadRfData(parameters.probe, simuDir1);
+[~, reconstruction] = GenerateParamRecon(recorded);
+
 legendPlot = {};
 figure
 for i = 1:numel(rmsAll)
     for j = 1:numel(corrAll)
         if ~isempty(SpecularAll.SpecuProba{i,j}{1})
-            plot(reconstruction.Xmm, SpecuProbaAll{i,j}{1}.linearROI);
+            plot(reconstruction.Xmm, SpecularAll.SpecuProba{i,j}{1}.linearROI);
             ylim([0, 1]);
-            legendPlot{end+1} = ['RMS = ', SpecuProbaAll.Properties.RowNames{i}, ' CORR = ', SpecuProbaAll.Properties.VariableNames{j}];
+            legendPlot{end+1} = ['RMS = ', SpecularAll.SpecuProba.Properties.RowNames{i}, ' CORR = ', SpecularAll.SpecuProba.Properties.VariableNames{j}];
 
             hold on
         end
