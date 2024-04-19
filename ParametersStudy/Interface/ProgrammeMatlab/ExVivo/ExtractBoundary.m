@@ -1,11 +1,14 @@
-function [boundaryEndost] = ExtractBoundary(filename, segmented)
+function[boundaryEndost, boundaryPores] = ExtractBoundary(filename, segmented)
 %   This function extracts the boundary of the endost from a binary image.
 %
 %   Input arguments:
 %   - filename: ;bmp image that contain the bone structure.
 %
 %   Output arguments:
-%   - boundaryEndost: Coordinates of the extracted boundary points.
+%   - boundaryEndost: Vector of the coordinates of the extracted boundary 
+%   points. X-axis = (1, :) Y-axis = (2, :)
+%   - boundaryPores: Cell array containing a double vector that contain the
+%   X and Y coordinates of the pores.
 
     bone_bmp = imread(filename); 
     
@@ -16,8 +19,8 @@ function [boundaryEndost] = ExtractBoundary(filename, segmented)
         binaryImage = imbinarize(bone_bmp, threshold);
     end
 
-    % Select boundary of the endost and periost    
-    boundaries = bwboundaries(binaryImage, 8, 'noholes');
+    % Select boundary of the endost and periost  
+    boundaries = bwboundaries(binaryImage, 8);
     boundary = flip(boundaries{1}, 2);      % First column X-axis & second column Z-axis
     
     % BOUNDARIES COMPUTATION
@@ -40,4 +43,12 @@ function [boundaryEndost] = ExtractBoundary(filename, segmented)
 
     boundaryEndost = [X_bound(LimEndoMin : LimEndoMax), Z_bound(LimEndoMin : LimEndoMax)];
     boundaryEndost = boundaryEndost';
+
+    % PORES COMPUTATION
+    boundaryPores = {};
+    for i = 2:numel(boundaries)
+        if numel(boundaries{i}) > 30
+            boundaryPores{end+1} = flip(boundaries{i}, 2)';
+        end
+    end
 end

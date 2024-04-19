@@ -1,4 +1,4 @@
-function[Map, heights] = MakeGeometryInterface(grid, probe, medium, interface, verify, simu_dir)
+function[Map, heights] = MakeGeometryInterface(grid, probe, medium, interface, print, simu_dir)
 % MakeGeometryInterface generates a map representing the bone/soft tissue interface.
 %
 % Syntax:
@@ -22,19 +22,18 @@ function[Map, heights] = MakeGeometryInterface(grid, probe, medium, interface, v
 % Output Arguments:
 %   - Map: Binary map representing the bone/soft tissue interface.
 
-
     to_px = @(mm) round(mm/grid.step); 
     Nz = to_px(grid.depth);    % Number of point in the direction 1 (depth - Z)
     Nx = to_px(grid.width);    % Number of point in the direction 2 (width - X)
 
+    % MAP WITHOUT POROSITY
+    % Bone index :1
+    % Soft tissu index : 0
+    Map=zeros(Nz, Nx, 'uint8');
+
     % INTERFACE GENERATION
     regenerate = true;
     while regenerate
-    
-        % MAP WITHOUT POROSITY
-        % Bone index :1
-        % Soft tissu index : 0
-        Map=zeros(Nz, Nx, 'uint8');
 
         heights = GenerateRoughSurface(Nx, grid.width, interface.rms, interface.corr);
         heights(isnan(heights)) = 0;
@@ -68,17 +67,16 @@ function[Map, heights] = MakeGeometryInterface(grid, probe, medium, interface, v
                 prompt = "Do you validate the heigth profile ? Y/N [Y]: ";
                 txt = input(prompt,"s");
                 if ~strcmp(txt, 'N')
-                    regenerate = false;
+                    goto regeneration;
                 end
             end
         end
-    end
         
-    % Compute Geometry.map2D file
-    if nargin == 6
-        fprintf(['\n--- Geometry Map saved in ', simu_dir(46:end-1)]);
-        SimSonic2DWriteMap2D(Map, [simu_dir 'Geometry.map2D']);
-    end
+        % Compute Geometry.map2D file
+        if nargin == 6
+            fprintf(['\n--- Geometry Map saved in ', simu_dir(46:end-1)]);
+            SimSonic2DWriteMap2D(Map, [simu_dir 'Geometry.map2D']);
+        end
 end
 
 function [heights] = GenerateRoughSurface(N, length, rms, corr)

@@ -171,10 +171,10 @@ end
 function[snapshot] = WriteSnapshotProperties(print)
     % Writting
     snapshot_rec = sprintf('Snapshots Record Period  (us): .5');
-    snap_V1  = sprintf('%-29s: %-d','Record V1 Snapshots',1);
+    snap_V1  = sprintf('%-29s: %-d','Record V1 Snapshots',0);
     snap_V2  = sprintf('%-29s: %-d','Record V2 Snapshots',0);
     snap_V   = sprintf('%-29s: %-d','Record V Snapshots',0);
-    snap_T11 = sprintf('%-29s: %-d','Record T11 Snapshots',1);
+    snap_T11 = sprintf('%-29s: %-d','Record T11 Snapshots',0);
     snap_T12 = sprintf('%-29s: %-d','Record T12 Snapshots',0);
     snapshot = {'%%%%%%%%%% SNAPSHOT PARAMETERS %%%%%%%%%% ' ...
         snapshot_rec' snap_V' snap_T11' };

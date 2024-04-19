@@ -12,15 +12,15 @@ saveParam = false;
 
 %% COMPUTATION OF THE SIGNAL AND GEOMETRY FILES
 fprintf('---------- Geometry and Signal genration ----------\n');
-print = true;            % To plot the signal and the geometry.
-print_hist = true;       % To plot the size and position distributions of the pore
+printPlot = true;            % To plot the signal and the geometry.
+printHist = false;       % To plot the size and position distributions of the pore
 
 % If the path to the simulation file is saved as an argument, a
 % the signal and geometry files will be registred in the directory.
-MakeSgl(param, grid, medium, signal, print, simu_dir);
-MakeGeometryExVivo(grid, interface, filter, print, simu_dir);
+% MakeSgl(param, grid, medium, signal, print, simu_dir);
+MakeGeometryExVivo(grid, interface, filter, printPlot);
 
 %% CREATION OF THE PARAMETERS FILE IN EACH TRANSMITTER DIRECTORY
 fprintf('---------- Parameters genration ----------\n');
-print = false;
-MakeParameters(param, grid, probe, medium, simu_dir, print)
+printParam = false;
+MakeParameters(param, grid, probe, medium, simu_dir, printParam)

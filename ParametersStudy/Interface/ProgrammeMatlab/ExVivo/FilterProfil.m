@@ -11,7 +11,7 @@ function[profile, roughness, xProfile] = FilterProfil(filename, fc, segmented)
 % See also : ExtractBoundary
     
     % BOUNDARIES COMPUTATION
-    boundaryEndost = ExtractBoundary(filename, segmented);
+    [boundaryEndost, ~] = ExtractBoundary(filename, segmented);
     boundaryEndost(2, :) = max(boundaryEndost(2, :)) - boundaryEndost(2, :);
     
     % ROUGHNESS COMPUTATION

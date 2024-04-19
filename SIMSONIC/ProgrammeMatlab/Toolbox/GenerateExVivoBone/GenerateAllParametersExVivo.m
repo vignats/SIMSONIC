@@ -13,7 +13,7 @@ function [param, grid, probe, medium, interface, signal, filter, simu_dir] = Gen
     
     filter.bone = '227G';       % Bone from ex-vivo files
     filter.image = 1590;      % Slice selected
-    filter.fc = 0.06;           % Cut-off frequency, fc = 0.06 for waviness + roughness and 1.25 for roughness (mm-1)
+    filter.fc = 0.0714;           % Cut-off frequency, fc = 0.06 for waviness + roughness and 1.25 for roughness (mm-1)
     filter.fs = 9e-3;           % Pixel size of the X-Ray image (mm)
     filter.segmented = false;   % Indicate if the image is segmented
 

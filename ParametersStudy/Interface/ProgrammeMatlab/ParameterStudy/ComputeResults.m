@@ -10,72 +10,67 @@ pathSimuAll = '/calculSSD/salome/Simulation-04avr';
 rmsAll = 0.03 + (0:9) * 0.05;      % List of rms values (mm)
 corrAll = [0.5 1 2 4];             % List of correlation length (mm)
 
-SpecularAll = struct();
+Results = struct();
 
-%% COMPUTE GEOMETRY MAP
-SpecularAll.Map = ComputeMap('Map', rmsAll, corrAll, pathSimuAll, SpecularAll);
+%% Compute maps and statistics
+Results.Map = ComputeMap('Map', rmsAll, corrAll, pathSimuAll, Results);
+Results.SpecuMap = ComputeMap('SpecuMap', rmsAll, corrAll, pathSimuAll, Results);
 
-%% PLOT GEOMETRY MAPS
+%% Plot maps
 MapTitle = 'Interface profile for various RMS and correlation length';
-PlotAll('Map', SpecularAll, rmsAll, corrAll, pathSimuAll, MapTitle);
+PlotAll('Map', Results, rmsAll, corrAll, pathSimuAll, MapTitle);
 
-%% COMPUTE SPECULARITY MAPS 
-SpecularAll.SpecuMap = ComputeMap('SpecuMap', rmsAll, corrAll, pathSimuAll, SpecularAll);
-
-%% PLOT SPECULARITY MAPS
 MapTitle = 'Specular probability for various RMS and correlation length';
-PlotAll('SpecuMap', SpecularAll, rmsAll, corrAll, pathSimuAll, MapTitle);
+PlotAll('SpecuMap', Results, rmsAll, corrAll, pathSimuAll, MapTitle);
 
-%% COMPUTE CORRESPONDING STATISTICAL INFORMATIONS
-SpecularAll.SpecuProba = ComputeMap('SpecuProba', rmsAll, corrAll, pathSimuAll, SpecularAll);
-
-%% PLOT ALL MAPS
 MapTitle = 'Specular probability along the lateral position';
-PlotAll('SpecuProba', SpecularAll, rmsAll, corrAll, pathSimuAll, MapTitle);
+PlotAll('SpecuProba', Results, rmsAll, corrAll, pathSimuAll, MapTitle);
 
-%% TO USE IN EXCEL 
-[meanROI, stdROI, corrROI] = deal(table('Size', [numel(rmsAll), numel(corrAll)], ...
+%% Plot statistics
+SpecuProba = ComputeMap('Stat', rmsAll, corrAll, pathSimuAll, Results);
+Results.Stat = struct();
+[Results.Stat.meanROI, Results.Stat.stdROI, Results.Stat.corrROI] = deal(table('Size', [numel(rmsAll), numel(corrAll)], ...
                 'VariableType', repmat({'double'}, 1, numel(corrAll)), ...
                 'VariableNames', cellstr(string(corrAll)), ...
                 'RowNames', cellstr(string(rmsAll))));
 
 for i = 1:numel(rmsAll)
     for j = 1:numel(corrAll)
-        try
-            meanROI{i,j} = SpecularAll.SpecuProba{i,j}{1}.meanROI;
-            stdROI{i,j} = SpecularAll.SpecuProba{i,j}{1}.stdROI;
-            % corrROI{i,j} = SpecuProbaAll{i,j}{1}.corrROI;
-        end
+        Results.Stat.meanROI{i,j} = SpecuProba{i,j}{1}.meanROI;
+        Results.Stat.stdROI{i,j} = SpecuProba{i,j}{1}.stdROI;
+        Results.Stat.corrROI{i,j} = SpecuProba{i,j}{1}.corrROI;
     end
 end
 
-%% TO SUBPLOT
-format = 'simulation_rms_%.2f_cl_%.1f/';
-simuDir1 = fullfile(pathSimuAll, sprintf(format, rmsAll(1), corrAll(1)));
-parameters = load(fullfile(simuDir1, 'parameters.mat'));
-recorded = LoadRfData(parameters.probe, simuDir1);
-[~, reconstruction] = GenerateParamRecon(recorded);
+figure;
+surf(corrAll, rmsAll, table2array(Results.Stat.meanROI), 'EdgeColor', 'none');
+xlabel('Correlation length (mm)');
+ylabel('Root mean square (mm)');
+zlabel('Mean Specular Probability');
+title('Mean Specular Probability in the Region of Interest');
+colorbar
 
-legendPlot = {};
-figure
+%% Compute initial parameters 
+Param = ComputeMap('InterfaceParam', rmsAll, corrAll, pathSimuAll, Results);
+Results.InitParam = struct();
+Results.InitParam.Corr = table('Size', [numel(rmsAll), numel(corrAll)], ...
+                'VariableType', repmat({'cell'}, 1, numel(corrAll)), ...
+                'VariableNames', cellstr(string(corrAll)), ...
+                'RowNames', cellstr(string(rmsAll))); 
+Results.InitParam.Rms = table('Size', [numel(rmsAll), numel(corrAll)], ...
+                'VariableType', repmat({'cell'}, 1, numel(corrAll)), ...
+                'VariableNames', cellstr(string(corrAll)), ...
+                'RowNames', cellstr(string(rmsAll))); 
+
 for i = 1:numel(rmsAll)
     for j = 1:numel(corrAll)
-        if ~isempty(SpecularAll.SpecuProba{i,j}{1})
-            plot(reconstruction.Xmm, SpecularAll.SpecuProba{i,j}{1}.linearROI);
-            ylim([0, 1]);
-            legendPlot{end+1} = ['RMS = ', SpecularAll.SpecuProba.Properties.RowNames{i}, ' CORR = ', SpecularAll.SpecuProba.Properties.VariableNames{j}];
-
-            hold on
-        end
+        Results.InitParam.Rms{i,j} = Param{i,j}{1}(1);
+        Results.InitParam.Corr{i,j} = Param{i,j}{1}(2);
     end
 end
-xlabel('Lateral position (mm)', Interpreter='latex')
-ylabel('Specular probability', Interpreter='latex')
-title('Specular probability along the lateral position');
-legend(legendPlot)
-ylim([0, 1]);
 
-function[Table] = ComputeMap(MapType, rmsAll, corrAll, pathSimuAll, SpecularAll)
+%% Useful functions
+function[Table] = ComputeMap(MapType, rmsAll, corrAll, pathSimuAll, Results)
     % Compute parameters once 
     format = 'simulation_rms_%.2f_cl_%.1f/';
     simuDir1 = fullfile(pathSimuAll, sprintf(format, rmsAll(1), corrAll(1)));
@@ -106,12 +101,12 @@ function[Table] = ComputeMap(MapType, rmsAll, corrAll, pathSimuAll, SpecularAll)
                         postProcess = load(fullfile(simu_dir, 'postProcess.mat'));
                         Table{i,j}{1} = postProcess.SpecularProbaMap;
                     end
-                case 'SpecuProba'
-                    try
-                        probability = ProbaROI(SpecularAll.SpecuMap{i,j}{1}, reconstruction, parameters, false);
-                        Table{i,j}{1} = probability;
-                        disp(i)
-                    end
+                case 'Stat'
+                    probability = ProbaROI(Results.SpecuMap{i,j}{1}, reconstruction, parameters, false);
+                    Table{i,j}{1} = probability;
+                case 'InterfaceParam'
+                    [Rq, Corr, rugosity] = ComputeInterfaceParameters(Results.Map{i,j}{1}, parameters.grid, parameters.probe, parameters.medium);
+                    Table{i,j}{1} = {Rq, Corr, rugosity};
                 otherwise 
                     warning('Unexpected Map type. No data computed.')
             end
@@ -142,7 +137,7 @@ function[] = PlotAll(MapType, Struct, rmsAll, corrAll, pathSimuAll, MapTitle)
                         img = Table{i,j}{1};
                         imagesc(img);
                     end
-                case 'SpecuProba'
+                case 'Stat'
                     try
                         plot(reconstruction.Xmm, Table{i,j}{1}.linearROI);
                         ylim([0, 1]);

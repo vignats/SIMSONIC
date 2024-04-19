@@ -39,7 +39,7 @@ function[] = MakeSgl(param, grid, medium, signal, print, simu_dir)
 
     % Execute the last line only if simu_dir is specified
     if nargin ==6 
-        fprintf(['--- Signal saved in ', simu_dir(46:end-1)]);
+        fprintf(['\n--- Signal saved in ', simu_dir(46:end-1)]);
         SimSonic2DWriteSgl(transpose(signal_out), [simu_dir 'Signal.sgl']);
     end
 end

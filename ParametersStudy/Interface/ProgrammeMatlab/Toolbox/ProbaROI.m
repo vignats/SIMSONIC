@@ -25,7 +25,8 @@ function[probability] = ProbaROI(probaMap, reconstruction, parameters, plotROI)
     probability.linearROI = mean(ROI, 1);
     probability.stdROI = std(probability.linearROI);
     probability.meanROI = mean(probability.linearROI);
-    % probability.corrROI = ComputeCorr(probability.linearROI, reconstruction.pixel_size*1e3);
+    probability.corrROI = ComputeCorr(probability.linearROI, reconstruction.pixel_size*1e3);
+    probability.stdROIAll = std(ROI);
 end
 
 function[ROI] = ExtractROI(SpecularProbaMap, parameters, reconstruction, plotROI)

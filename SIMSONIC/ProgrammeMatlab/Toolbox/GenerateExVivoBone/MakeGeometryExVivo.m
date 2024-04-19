@@ -71,20 +71,22 @@ function[Map, heights] = MakeGeometryExVivo(grid, interface, filter, print, simu
         ylabel('Depth (mm)');
         axis equal
         
+        format = 'The interface have a rms of %.3f mm and a correlation length of %.3f mm \n';
+        fprintf(format, rms(heights), ComputeCorr(heights, grid.step));
     end
 end
 
 function [profile, heightInitial, xProfile] = GenerateInterface(filter)
 % This function allows to generate a planar interface with rugosity, based
 % on an ex-vivo bone. 
-    dirname = ['~/Documents/BoneRugosity/RMS/ExVivoBone/', filter.bone, '/'];
+    dirname = ['/calculSSD//Dossier partagé image os exvivo/', filter.bone, '/'];
     if filter.segmented
         dirname = [dirname, 'SEGMENTED_OTSU3D_K4/'];
     end
     file = ['SAMPLE_', filter.bone, '_SLICE_', sprintf('%04d', filter.image), '.bmp']; 
     filename = [dirname, file];
     
-    [profile, heightInitial, xProfile] = GetRoughness(filename, filter.fc, filter.segmented);
+    [profile, heightInitial, xProfile] = FilterProfil(filename, filter.fc, filter.segmented);
 end
 
 function [heightExtended] = ExtendInterface(profile, heightInitial, grid)

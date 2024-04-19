@@ -10,7 +10,7 @@ function [corrRecovered] = ComputeCorr(heights, gridStep)
 % see also : autocorr()
 
     % Computation of the correlation and lags.
-    [acf,lags] = autocorr(heights, 'NumLags', length(heights)-1);
+    [acf,lags] = xcorr(heights, 'normalized');
 
     % The correlation length is the lag that corresponds to a correlation of 1/e
     % Find the closest value from 1/e.
@@ -18,5 +18,5 @@ function [corrRecovered] = ComputeCorr(heights, gridStep)
     lagsCorrLength = lags(diffValues == min(diffValues));
 
     % To obtain the value in mm, we multiply by the heights profil step
-    corrRecovered = lagsCorrLength*gridStep;
+    corrRecovered = abs(max(lagsCorrLength))*gridStep;
 end
