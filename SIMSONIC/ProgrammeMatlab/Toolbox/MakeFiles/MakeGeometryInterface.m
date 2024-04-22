@@ -28,7 +28,13 @@ function[Map, heights] = MakeGeometryInterface(grid, probe, medium, interface, v
     Nx = to_px(grid.width);    % Number of point in the direction 2 (width - X)
 
     % INTERFACE GENERATION
+    % While both calculated rms and correlation length aren't in a interval
+    % of 10% the demanded value, we regenerate the Map.
     regenerate = true;
+    intervalRms = [interface.rms - 0.1*interface.rms, interface.rms + 0.1*interface.rms];
+    intervalCorr = [interface.corr - 0.1*interface.corr, interface.corr + 0.1*interface.corr];
+    iteration = 0; % Set a limit to the number of iteration. 
+    
     while regenerate
     
         % MAP WITHOUT POROSITY
@@ -47,8 +53,19 @@ function[Map, heights] = MakeGeometryInterface(grid, probe, medium, interface, v
             Map(endostInd: to_px(heights(i) + interface.endost), i) = 1;
         end 
         
+        % Verify that the plot verify the rms and correlation length asked
+        [Rq, Corr, ~] = ComputeInterfaceParameters(Map, grid, probe, medium);
+        iteration = iteration +1;
+        if (intervalRms(1) < Rq) && (Rq < intervalRms(2)) ...
+                && (intervalCorr(1) < Corr) && (Corr < intervalCorr(2)) ...
+                || iteration >100
+            regenerate = false;
+            if iteration > 100
+                frpintf('Not able to create map with input parameters')
+            end
+        end
         % Plot map      
-        if strcmp(verify, 'plot') || strcmp(verify, 'confirm')
+        if strcmp(verify, 'plot')
             X = 0:grid.step:grid.width-grid.step; X = X -mean(X);
             Z = flipud(0:grid.step:grid.depth-grid.step);
             figure, imagesc(X, Z, Map)
@@ -63,14 +80,6 @@ function[Map, heights] = MakeGeometryInterface(grid, probe, medium, interface, v
             [Rq, Corr, rugosity] = ComputeInterfaceParameters(Map, grid, probe, medium);
             format = '\nThe interface have a rms of %.3f mm and a correlation length of %.3f mm \nThe rugosity in one wavelength is %.1f%%';
             fprintf(format, Rq, Corr, rugosity);
-    
-            if strcmp(verify, 'confirm')
-                prompt = "Do you validate the heigth profile ? Y/N [Y]: ";
-                txt = input(prompt,"s");
-                if ~strcmp(txt, 'N')
-                    regenerate = false;
-                end
-            end
         end
     end
         

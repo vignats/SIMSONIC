@@ -60,7 +60,7 @@ function [param, grid, probe, medium, interface, signal, simu_dir, corrAll, rmsA
             % of the endost boundary in the frequency domain
         
             % CREATION OF THE SIMULATION DIRECTORY
-            simuDirAll = '/calculSSD/salome/Simulation-19avr';
+            simuDirAll = '~/Documents/BoneRugosity/SIMSONIC/Simulation/Simulation-19avr';
             format = 'simulation_rms_%.2f_cl_%.1f/';
             simulation_name = sprintf(format, interface.rms, interface.corr);
             simu_dir = fullfile(simuDirAll, simulation_name); 

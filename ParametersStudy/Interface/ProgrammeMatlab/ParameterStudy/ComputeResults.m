@@ -6,7 +6,8 @@ addpath(genpath('/calculSSD/salome'));
 
 %% PROCESSING OF THE RF DATA 
 % Generate a table to stock the geometry and the specularity Map
-pathSimuAll = '/calculSSD/salome/Simulation-04avr';
+% pathSimuAll = '/calculSSD/salome/Simulation-04avr';
+pathSimuAll =  '~/Documents/BoneRugosity/SIMSONIC/Simulation/Simulation-19avr';
 rmsAll = 0.03 + (0:9) * 0.05;      % List of rms values (mm)
 corrAll = [0.5 1 2 4];             % List of correlation length (mm)
 
@@ -20,6 +21,7 @@ Results.SpecuMap = ComputeMap('SpecuMap', rmsAll, corrAll, pathSimuAll, Results)
 MapTitle = 'Interface profile for various RMS and correlation length';
 PlotAll('Map', Results, rmsAll, corrAll, pathSimuAll, MapTitle);
 
+%%
 MapTitle = 'Specular probability for various RMS and correlation length';
 PlotAll('SpecuMap', Results, rmsAll, corrAll, pathSimuAll, MapTitle);
 
@@ -75,8 +77,6 @@ function[Table] = ComputeMap(MapType, rmsAll, corrAll, pathSimuAll, Results)
     format = 'simulation_rms_%.2f_cl_%.1f/';
     simuDir1 = fullfile(pathSimuAll, sprintf(format, rmsAll(1), corrAll(1)));
     parameters = load(fullfile(simuDir1, 'parameters.mat'));
-    recorded = LoadRfData(parameters.probe, simuDir1);
-    [~, reconstruction] = GenerateParamRecon(recorded);
 
     Table = table('Size', [numel(rmsAll), numel(corrAll)], ...
                 'VariableType', repmat({'cell'}, 1, numel(corrAll)), ...
@@ -121,8 +121,6 @@ function[] = PlotAll(MapType, Struct, rmsAll, corrAll, pathSimuAll, MapTitle)
     format = 'simulation_rms_%.2f_cl_%.1f/';
     simuDir1 = fullfile(pathSimuAll, sprintf(format, rmsAll(1), corrAll(1)));
     parameters = load(fullfile(simuDir1, 'parameters.mat'));
-    recorded = LoadRfData(parameters.probe, simuDir1);
-    [~, reconstruction] = GenerateParamRecon(recorded);
 
     figure
     t = tiledlayout(numel(rmsAll),numel(corrAll),'TileSpacing','tight');
@@ -139,6 +137,8 @@ function[] = PlotAll(MapType, Struct, rmsAll, corrAll, pathSimuAll, MapTitle)
                     end
                 case 'Stat'
                     try
+                        recorded = LoadRfData(parameters.probe, simuDir1);
+                        [~, reconstruction] = GenerateParamRecon(recorded);
                         plot(reconstruction.Xmm, Table{i,j}{1}.linearROI);
                         ylim([0, 1]);
                     end

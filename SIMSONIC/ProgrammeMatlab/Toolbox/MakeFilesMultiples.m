@@ -3,6 +3,7 @@ clear;
 close all;
 clc;
 addpath(genpath('~/Documents')); 
+addpath(genpath('/calculSSD/salome'));
 
 %% PARAMETERS TO MODIFY AT EACH SIMULATION 
 % ACQUISITION PARAMETERS 
@@ -14,7 +15,7 @@ saveParam = true;
 
 %% COMPUTATION OF THE SIGNAL AND GEOMETRY FILES
 fprintf('---------- Geometry and Signal genration ----------\n');
-verify = 'confirm';               % To plot the signal and the geometry, and or confirm the heigth profile.
+verify = 'null';               % To plot the signal and the geometry, and or confirm the heigth profile.
                               % Either 'plot', 'confirm' or 'null'
 print_hist = false;           % To plot the size and position distributions of the pore
 
@@ -23,7 +24,7 @@ for i = 1:length(corrAll)
         interface.corr = corrAll(i);          % Correlation length (mm)
         interface.rms = rmsAll(j);            % Rms height (mm)
         
-        simuDirAll = '/calculSSD/salome/Simulation-19avr';
+        simuDirAll = '~/Documents/BoneRugosity/SIMSONIC/Simulation/Simulation-19avr';
         format = 'simulation_rms_%.2f_cl_%.1f/';
         simulation_name = sprintf(format, interface.rms, interface.corr);
         simu_dir = fullfile(simuDirAll, simulation_name); 

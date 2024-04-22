@@ -4,7 +4,8 @@ addpath(genpath('~/Documents'));
 addpath(genpath('/calculSSD/salome'));
 
 %% COMPUTE SPECULARITY MAP FOR ALL SIMULATION
-simuDirAll = '/calculSSD/salome/Simulation-04avr'; 
+simuDirAll = '~/Documents/BoneRugosity/SIMSONIC/Simulation/Simulation-19avr';
+% simuDirAll = '/calculSSD/salome/Simulation-04avr'; 
 simuDir = dir(sprintf('%s/simulation_rms_*', simuDirAll));
 
 dirFlags = [simuDir.isdir]; 
