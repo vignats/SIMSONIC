@@ -1,19 +1,14 @@
-function [SPECULAR_TRANSFORM] = function_get_specular_transform_interpol(...
-    RECON_PARAM, acquisition, TILT_angles)
+function [SPECULAR_TRANSFORM] = get_specular_transform_interpol(...
+    RECON_PARAM,TOF,AOV_px,AOV_elem, FS, TILT_angles)
 % TODO: Add function description
-    TOF = RECON_PARAM.timeFlight;
-    AOV_px = RECON_PARAM.angleView;
-    AOV_elem = AOV_px;
-    FS = acquisition.Fs;
-
-    % arguments
-    %     RECON_PARAM struct
-    %     TOF struct
-    %     AOV_px struct % incident and reflected angle at pixel
-    %     AOV_elem struct%
-    %     FS (1,1) 
-    %     TILT_angles {mustBeInRange(TILT_angles,-90,90)}
-    % end
+    arguments
+        RECON_PARAM struct
+        TOF struct
+        AOV_px struct % incident and reflected angle at pixel
+        AOV_elem struct%
+        FS (1,1) 
+        TILT_angles {mustBeInRange(TILT_angles,-90,90)}
+    end
     SIG = RECON_PARAM.rf_data;
     SIG = SIG(RECON_PARAM.PROBE_PARAM.offset+1:end,:,:);
     % I/Q separation.

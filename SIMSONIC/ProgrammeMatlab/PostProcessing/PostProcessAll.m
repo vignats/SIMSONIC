@@ -4,7 +4,8 @@ addpath(genpath('~/Documents'));
 addpath(genpath('/calculSSD/salome'));
 
 %% Get all the directory not yet post-processed
-simuDirAll = '/calculSSD/salome/Simulation-19avr'; 
+% simuDirAll = '/calculSSD/salome/Simulation-19avr'; 
+simuDirAll = '~/Documents/BoneRugosity/SIMSONIC/Simulation/Simulation-19avr';
 simuDir = dir(sprintf('%s/simulation_rms_*', simuDirAll));
 
 dirFlags = [simuDir.isdir]; 
