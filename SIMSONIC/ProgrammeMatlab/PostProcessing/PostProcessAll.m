@@ -3,9 +3,8 @@ clear all;
 addpath(genpath('~/Documents'));
 addpath(genpath('/calculSSD/salome'));
 
-%% COMPUTE SPECULARITY MAP FOR ALL SIMULATION
-simuDirAll = '~/Documents/BoneRugosity/SIMSONIC/Simulation/Simulation-19avr';
-% simuDirAll = '/calculSSD/salome/Simulation-04avr'; 
+%% Get all the directory not yet post-processed
+simuDirAll = '/calculSSD/salome/Simulation-19avr'; 
 simuDir = dir(sprintf('%s/simulation_rms_*', simuDirAll));
 
 dirFlags = [simuDir.isdir]; 
@@ -19,7 +18,7 @@ for idx = 1:numel(simuDir)
     end
 end
 
-%%
+%% Process possible directory, and save the index of those for which the simulation is not yet finished
 errorRemain = [];
 for idx = errorBis
     try
@@ -31,4 +30,6 @@ for idx = errorBis
     end
     
 end
+
+
 

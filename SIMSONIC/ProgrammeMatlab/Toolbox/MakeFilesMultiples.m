@@ -24,7 +24,7 @@ for i = 1:length(corrAll)
         interface.corr = corrAll(i);          % Correlation length (mm)
         interface.rms = rmsAll(j);            % Rms height (mm)
         
-        simuDirAll = '~/Documents/BoneRugosity/SIMSONIC/Simulation/Simulation-19avr';
+        simuDirAll = '/calculSSD/salome/Simulation-24avr';
         format = 'simulation_rms_%.2f_cl_%.1f/';
         simulation_name = sprintf(format, interface.rms, interface.corr);
         simu_dir = fullfile(simuDirAll, simulation_name); 

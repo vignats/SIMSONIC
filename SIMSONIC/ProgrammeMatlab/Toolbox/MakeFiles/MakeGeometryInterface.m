@@ -21,8 +21,6 @@ function[Map, heights] = MakeGeometryInterface(grid, probe, medium, interface, v
 %
 % Output Arguments:
 %   - Map: Binary map representing the bone/soft tissue interface.
-
-
     to_px = @(mm) round(mm/grid.step); 
     Nz = to_px(grid.depth);    % Number of point in the direction 1 (depth - Z)
     Nx = to_px(grid.width);    % Number of point in the direction 2 (width - X)
@@ -31,8 +29,6 @@ function[Map, heights] = MakeGeometryInterface(grid, probe, medium, interface, v
     % While both calculated rms and correlation length aren't in a interval
     % of 10% the demanded value, we regenerate the Map.
     regenerate = true;
-    intervalRms = [interface.rms - 0.1*interface.rms, interface.rms + 0.1*interface.rms];
-    intervalCorr = [interface.corr - 0.1*interface.corr, interface.corr + 0.1*interface.corr];
     iteration = 0; % Set a limit to the number of iteration. 
     
     while regenerate
@@ -56,33 +52,65 @@ function[Map, heights] = MakeGeometryInterface(grid, probe, medium, interface, v
         % Verify that the plot verify the rms and correlation length asked
         [Rq, Corr, ~] = ComputeInterfaceParameters(Map, grid, probe, medium);
         iteration = iteration +1;
-        if (intervalRms(1) < Rq) && (Rq < intervalRms(2)) ...
-                && (intervalCorr(1) < Corr) && (Corr < intervalCorr(2)) ...
+        if (0.9*interface.rms < Rq) && (Rq < 1.1*interface.rms) ...
+                && (0.9*interface.corr < Corr) && (Corr < 1.1*interface.corr) ...
                 || iteration >100
             regenerate = false;
             if iteration > 100
                 frpintf('Not able to create map with input parameters')
             end
         end
-        % Plot map      
-        if strcmp(verify, 'plot')
-            X = 0:grid.step:grid.width-grid.step; X = X -mean(X);
-            Z = flipud(0:grid.step:grid.depth-grid.step);
-            figure, imagesc(X, Z, Map)
-            xticks(X(1:100:Nx));
-            yticks(Z(1:100:Nz));
-            % axis equal
-            xlabel('Width (mm)');
-            ylabel('Depth (mm)');
-            title('Simulation map', sprintf('rms = %.2f mm, corr = %.2f mm', interface.rms, interface.corr));
+        
+        % Generate pore inside the bone
+        if interface.rugosity > 0
+            % Compute the number of pore needed in a width of one
+            % wavelength above the bone/ST interface. 
+            lambda = medium.cp(2)*1e3 / (probe.fc);     % Wavelength in the bone (mm)
             
-            % Rugosity calculation 
-            [Rq, Corr, rugosity] = ComputeInterfaceParameters(Map, grid, probe, medium);
-            format = '\nThe interface have a rms of %.3f mm and a correlation length of %.3f mm \nThe rugosity in one wavelength is %.1f%%';
-            fprintf(format, Rq, Corr, rugosity);
+            maxRowBone = find(Map(:, find(sum(Map)==max(sum(Map)), 1)) == 1, 1, 'last'); 
+            totalVolume = sum(Map(to_px(interface.endost - lambda) : maxRowBone, :), 'all');
+
+            % nbPore = round((totalVolume*interface.rugosity/100)/(pi*to_px(interface.diameter)^2/4)); % sum(Map(to_px(interface.endost) - lambda : to_px(interface.endost)))
+            % xPores = randi(Nx, nbPore, 1);   
+            % zPores = randi([to_px(interface.endost - lambda), maxRowBone], nbPore, 1); 
+            % for i = 1:nbPore
+            
+            % Generate pore until we reached the desired pore volume
+            while sum(Map(to_px(interface.endost - lambda) : maxRowBone, :), 'all') >= totalVolume*(1-interface.rugosity/100)
+                % Generate a X and Z-coordinate for the pore between the
+                % original interface minus a wavelength and the bone endost
+                % generated previously.
+                xPores = randi(Nx, 1, 1);   
+                zPores = randi([to_px(interface.endost - lambda), maxRowBone], 1, 1);
+
+                % Once a unique paire of coordinate has been generated,
+                % transform the bone in soft tissu medium (0) in a specified radius around the pore.
+                Map(zPores,xPores) = 0;   
+            end
         end
     end
+
+   % Plot map      
+    if strcmp(verify, 'plot')
+        X = 0:grid.step:grid.width-grid.step; X = X -mean(X);
+        Z = flipud(0:grid.step:grid.depth-grid.step);
+        figure, imagesc(X, Z, Map)
+        xticks(X(1:100:Nx));
+        yticks(Z(1:100:Nz));
+        % axis equal
+        xlabel('Width (mm)');
+        ylabel('Depth (mm)');
+        title('Simulation map', ...
+            sprintf('rms = %.2f mm, corr = %.2f mm, rugosity = %.0f %%, pore diameter = %.0f um', ...
+            interface.rms, interface.corr, interface.rugosity, interface.diameter*1e3));
         
+        % Rugosity calculation 
+        [Rq, Corr, rugosity] = ComputeInterfaceParameters(Map, grid, probe, medium);
+        format = ['\nThe interface have a rms of %.3f mm and a correlation length of %.3f mm' ...
+            '\nThe rugosity in one wavelength is %.1f%%'];
+        fprintf(format, Rq, Corr, rugosity);
+    end 
+
     % Compute Geometry.map2D file
     if nargin == 6
         fprintf(['\n--- Geometry Map saved in ', simu_dir(46:end-1)]);

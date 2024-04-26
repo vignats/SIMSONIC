@@ -6,8 +6,7 @@ addpath(genpath('/calculSSD/salome'));
 
 %% PROCESSING OF THE RF DATA 
 % Generate a table to stock the geometry and the specularity Map
-% pathSimuAll = '/calculSSD/salome/Simulation-04avr';
-pathSimuAll =  '~/Documents/BoneRugosity/SIMSONIC/Simulation/Simulation-19avr';
+pathSimuAll = '/calculSSD/salome/Simulation-19avr';
 rmsAll = 0.03 + (0:9) * 0.05;      % List of rms values (mm)
 corrAll = [0.5 1 2 4];             % List of correlation length (mm)
 
@@ -21,26 +20,26 @@ Results.SpecuMap = ComputeMap('SpecuMap', rmsAll, corrAll, pathSimuAll, Results)
 MapTitle = 'Interface profile for various RMS and correlation length';
 PlotAll('Map', Results, rmsAll, corrAll, pathSimuAll, MapTitle);
 
-%%
 MapTitle = 'Specular probability for various RMS and correlation length';
 PlotAll('SpecuMap', Results, rmsAll, corrAll, pathSimuAll, MapTitle);
-
-MapTitle = 'Specular probability along the lateral position';
-PlotAll('SpecuProba', Results, rmsAll, corrAll, pathSimuAll, MapTitle);
 
 %% Plot statistics
 SpecuProba = ComputeMap('Stat', rmsAll, corrAll, pathSimuAll, Results);
 Results.Stat = struct();
-[Results.Stat.meanROI, Results.Stat.stdROI, Results.Stat.corrROI] = deal(table('Size', [numel(rmsAll), numel(corrAll)], ...
+[Results.Stat.meanROI, Results.Stat.stdROI] = deal(table('Size', [numel(rmsAll), numel(corrAll)], ...
                 'VariableType', repmat({'double'}, 1, numel(corrAll)), ...
                 'VariableNames', cellstr(string(corrAll)), ...
                 'RowNames', cellstr(string(rmsAll))));
+Results.Stat.linearROI = table('Size', [numel(rmsAll), numel(corrAll)], ...
+                'VariableType', repmat({'cell'}, 1, numel(corrAll)), ...
+                'VariableNames', cellstr(string(corrAll)), ...
+                'RowNames', cellstr(string(rmsAll)));
 
 for i = 1:numel(rmsAll)
     for j = 1:numel(corrAll)
         Results.Stat.meanROI{i,j} = SpecuProba{i,j}{1}.meanROI;
         Results.Stat.stdROI{i,j} = SpecuProba{i,j}{1}.stdROI;
-        Results.Stat.corrROI{i,j} = SpecuProba{i,j}{1}.corrROI;
+        Results.Stat.linearROI{i,j} = {SpecuProba{i,j}{1}.linearROI};
     end
 end
 
@@ -51,6 +50,10 @@ ylabel('Root mean square (mm)');
 zlabel('Mean Specular Probability');
 title('Mean Specular Probability in the Region of Interest');
 colorbar
+
+%%
+MapTitle = 'Specular probability along the lateral position';
+PlotAll('Stat', Results, rmsAll, corrAll, pathSimuAll, MapTitle);
 
 %% Compute initial parameters 
 Param = ComputeMap('InterfaceParam', rmsAll, corrAll, pathSimuAll, Results);
@@ -71,6 +74,8 @@ for i = 1:numel(rmsAll)
     end
 end
 
+%% Save results 
+save(fullfile(pathSimuAll, 'Results.mat'), 'Results')
 %% Useful functions
 function[Table] = ComputeMap(MapType, rmsAll, corrAll, pathSimuAll, Results)
     % Compute parameters once 
@@ -102,6 +107,8 @@ function[Table] = ComputeMap(MapType, rmsAll, corrAll, pathSimuAll, Results)
                         Table{i,j}{1} = postProcess.SpecularProbaMap;
                     end
                 case 'Stat'
+                    recorded = LoadRfData(parameters.probe, simuDir1);
+                    [~, reconstruction] = GenerateParamRecon(recorded);
                     probability = ProbaROI(Results.SpecuMap{i,j}{1}, reconstruction, parameters, false);
                     Table{i,j}{1} = probability;
                 case 'InterfaceParam'
@@ -139,7 +146,7 @@ function[] = PlotAll(MapType, Struct, rmsAll, corrAll, pathSimuAll, MapTitle)
                     try
                         recorded = LoadRfData(parameters.probe, simuDir1);
                         [~, reconstruction] = GenerateParamRecon(recorded);
-                        plot(reconstruction.Xmm, Table{i,j}{1}.linearROI);
+                        plot(reconstruction.Xmm, Table.linearROI{i,j}{1});
                         ylim([0, 1]);
                     end
                 otherwise
@@ -147,15 +154,14 @@ function[] = PlotAll(MapType, Struct, rmsAll, corrAll, pathSimuAll, MapTitle)
             end
             % Remove x and y axes
             set(gca, 'xtick', [], 'ytick', []);
-            
-            % Set axis
-            if i == 1
-                title(Table.Properties.VariableNames{j}, 'FontSize', 8, 'FontWeight', 'normal');
             end
-            if j == 1
-                ylabel(Table.Properties.RowNames{i}, 'FontSize', 8);
-            end
-        end
+    end
+    % Set axis
+    if i == 1
+        title(num2str(corrAll(j)), 'FontSize', 8, 'FontWeight', 'normal');
+    end
+    if j == 1
+        ylabel(num2str(corrAll(i)), 'FontSize', 8);
     end
     title(t, 'Correlation length (mm)', 'FontSize', 10)
     ylabel(t, 'Root mean square (mm)', 'FontSize', 10)

@@ -15,7 +15,7 @@ function [param, grid, probe, medium, interface, signal, simu_dir] = GenerateAll
     % GRID PARAMETERS 
     grid.step = 0.01;                % Grid step (mm)
     grid.depth = 15;                 % Grid depth or Z-axis (mm)
-    grid.width = 300;                 % Grid with or X-axis (mm)
+    grid.width = 30;                 % Grid with or X-axis (mm)
     
     % PROBE PARAMETERS 
     probe.depth = 2;                 % Probe depth (mm)
@@ -41,8 +41,8 @@ function [param, grid, probe, medium, interface, signal, simu_dir] = GenerateAll
     interface.patient = 'osteoporotic';   % Type of patient that determine the pore size distribution ('young', 'aged' or 'osteoporotic')
     interface.corr = 2;                   % Correlation length (mm)
     interface.rms = 0.4;                  % Rms height (mm)
-    interface.porosity = 50;              % Porosity in the bone (volume of pore/volume of bone) (%)
-    interface.rugosity = 60;              % Rugosity in a layer of a wavelength size at the bone interface (%)
+    interface.diameter = 0.01;            % Size of the pore in the bone (mm)
+    interface.rugosity = 7;               % Rugosity in a layer of a wavelength size at the bone interface, 0 if no pore (%)
         
     % SIGNAL PARAMETERS 
     signal.fc = probe.fc;            % Central frequency (Hz)
@@ -59,7 +59,7 @@ function [param, grid, probe, medium, interface, signal, simu_dir] = GenerateAll
     simuDirAll = '/calculSSD/salome/Simulation-15avr';
     format = 'simulation_rms_%.2f_cl_%.1f/';
     simulation_name = sprintf(format, interface.rms, interface.corr);
-    simu_dir = [simuDirAll, simulation_name]; 
+    simu_dir = fullfile(simuDirAll, simulation_name); 
     if ~exist(simu_dir,'dir')
         mkdir(simu_dir);
     end

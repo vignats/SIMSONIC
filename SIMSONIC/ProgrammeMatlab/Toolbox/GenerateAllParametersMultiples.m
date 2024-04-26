@@ -45,8 +45,8 @@ function [param, grid, probe, medium, interface, signal, simu_dir, corrAll, rmsA
             interface.patient = 'osteoporotic';   % Type of patient that determine the pore size distribution ('young', 'aged' or 'osteoporotic')
             interface.corr = corrAll(i);          % Correlation length (mm)
             interface.rms = rmsAll(j);            % Rms height (mm)
-            interface.porosity = 50;              % Porosity in the bone (volume of pore/volume of bone) (%)
-            interface.rugosity = 60;              % Rugosity in a layer of a wavelength size at the bone interface (%)
+            interface.diameter = 0.01;            % Size of the pore in the bone (mm)
+            interface.rugosity = 7;               % Rugosity in a layer of a wavelength size at the bone interface, 0 if no pore (%)
                 
             % SIGNAL PARAMETERS 
             signal.fc = probe.fc;            % Central frequency (Hz)
@@ -60,7 +60,7 @@ function [param, grid, probe, medium, interface, signal, simu_dir, corrAll, rmsA
             % of the endost boundary in the frequency domain
         
             % CREATION OF THE SIMULATION DIRECTORY
-            simuDirAll = '~/Documents/BoneRugosity/SIMSONIC/Simulation/Simulation-19avr';
+            simuDirAll = '/calculSSD/salome/Simulation-24avr';
             format = 'simulation_rms_%.2f_cl_%.1f/';
             simulation_name = sprintf(format, interface.rms, interface.corr);
             simu_dir = fullfile(simuDirAll, simulation_name); 

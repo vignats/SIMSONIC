@@ -36,7 +36,7 @@ function[ROI] = ExtractROI(SpecularProbaMap, parameters, reconstruction, plotROI
     % Interface depth
     to_px = @(mm) round(mm*1e-3/reconstruction.pixel_size)+1;       % The values in reconstruction are expressed in meter
     specularDepth = 1.7;                                              % The specularity Map starts at 2mm from the probe.
-    specularInterface = parameters.interface.depth - parameters.probe.depth - specularDepth;
+    specularInterface = parameters.interface.endost - parameters.probe.depth - specularDepth;
     
     % Length of the ROI
     lengthROI = (parameters.medium.cp(2) / (parameters.probe.fc)*1e3);       % Number of wavelength in the bone that we consider (mm)
