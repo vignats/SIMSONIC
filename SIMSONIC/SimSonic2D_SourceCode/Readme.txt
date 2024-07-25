@@ -1,1 +1,0 @@
-This archive contains the source code for SimSonic2D. A typical makefile for compiling on Linux-based OS with gcc is provided as an example. However, this makefile may have to be adapted to optimize the code performances with  the user's system.

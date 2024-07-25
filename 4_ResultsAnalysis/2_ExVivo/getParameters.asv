@@ -1,0 +1,89 @@
+% This code aim to post-process the ex-vivo specualrity maps
+clear; 
+close all;
+clc;
+addpath(genpath('~/Documents'));
+addpath(genpath('/calculSSD/salome'));
+
+%% Load datas
+dirPath = '~/Documents/BoneRugosity/4_ResultsAnalysis/2_ExVivo/Datas';
+load(fullfile(dirPath, 'boneSpeed.mat'), 'boneSpeed')
+
+pathFigAll = '/calculSSD/Dossier partagé image os exvivo/';
+bones = {'245D', '227G', '267G', '271G'};
+slices = {'Z1', 'Z2', 'Z3', 'Z4'};
+kcAll = {{0.041, 0.046, 0.057, 0.064}, {0.051, 0.046, 0.033, 0.037},...
+    {0.033, 0.027, 0.030, 0.027}, {0, 0, 0, 0}};
+
+%% Compute bone microstructure parameters
+type = table('Size', [numel(bones), numel(slices)], ...
+                'VariableType', repmat({'double'}, 1, numel(slices)), ...
+                'VariableNames', cellstr(string(slices)), ...
+                'RowNames', cellstr(string(bones)));
+
+meanParameters = struct('Rq', type, 'Corr', type, 'EPore', type,...
+    'dPore', type, 'kc', type);
+
+for b = 1:numel(bones)  
+    for s = 1:numel(slices)        
+        % LOAD DATAS
+        pathFigure = fullfile(pathFigAll, bones{b}, sprintf('ZONE_US_%02d', s));
+        figAll = dir(fullfile(pathFigure, 'SAMPLE*.bmp'));
+        
+        % COMPUTE PARAMETERS 
+        Rq = 0; Corr = 0; EPore = 0; dPore = 0; numFig = 0; kc = [];
+        for idx = 1:10:numel(figAll)
+            try
+                disp(idx)
+                % Binarize bone image
+                bone_bmp = imread(fullfile(pathFigure, figAll(idx).name)); 
+                threshold = graythresh(bone_bmp); % Find an automatic threshold
+                binaryImage = imbinarize(bone_bmp, threshold);
+                
+                % Rotate image if necessary
+                if b == 1 && s ~=1
+                    if s == 2 || s == 4
+                        angle = -10;
+                    elseif s == 3
+                        angle = -15;
+                    end
+                    binaryImage = imrotate(binaryImage, angle,'bilinear','loose');
+                    binaryImage = binaryImage(1:find(...
+                    sum(binaryImage(: , 1: size(binaryImage, 2)/2),2) > 10, 1, 'last'), :);
+                end
+    
+                % Extract endosteum
+                [~, roughness, ~, kc(end+1)] = FilterProfil(binaryImage,0);
+    
+                % Compute the correlation length and rms of the roughness profile 
+                Rq = Rq + rms(roughness);
+                Corr = Corr + ComputeCorr(roughness, 0.009);    % X-Ray image resolution : 9um
+    
+                % Compute the porosity in a surface of one wavelength above the boundary
+                speedSound = getfield(boneSpeed, sprintf('Bone%s', bones{b}), slices{s});
+                boundaryWidth = speedSound{1}/(2.6e3);    %Frequency of the probe : 2.6MHz
+                
+                [boundaryEndost, boundaryPores] = ExtractBoundary(binaryImage); % Extract the pores
+                [porosity, poreSize, displayImage] = ComputePorosity(binaryImage, boundaryEndost, boundaryPores, boundaryWidth, false);
+                EPore = EPore + porosity;
+                dPore = dPore + poreSize;
+    
+                numFig = numFig + 1;
+            catch
+                fprintf('Did not worked for bone %s in %s for the image %s', bones{b}, slices{s}, figAll(idx).name) 
+            end
+        end
+        
+        % Compute the mean parameters
+        meanParameters.Rq{b,s} = Rq / numFig;
+        meanParameters.Corr{b,s} = Corr / numFig;
+        meanParameters.EPore{b,s} = EPore / numFig;
+        meanParameters.dPore{b,s} = dPore / numFig;
+        meanKc = mean(kc);
+        
+        disp(meanKc)
+
+        disp(numFig)
+    end
+end
+

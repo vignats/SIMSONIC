@@ -1,1 +1,0 @@
-SimSonic2D_gcc64_omp is a compiled version of SimSonic2D to be used on Linux-based machines. It has been compiled using gcc, and assumes that the architecture is 64 bit with OpenMP available. T op optimize the performances of the code, it is recommended that the user recompile the source code on his/her own machine.
